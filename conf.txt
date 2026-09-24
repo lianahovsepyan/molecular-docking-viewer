@@ -1,0 +1,13 @@
+receptor = protein.pdbqt
+ligand = sample_ligand.pdbqt
+
+# Որոնման տիրույթը (Center և Size) մոտավորապես սպիտակուցի կենտրոնում
+center_x = 15.0
+center_y = 15.0
+center_z = 15.0
+
+size_x = 20.0
+size_y = 20.0
+size_z = 20.0
+
+exhaustiveness = 8

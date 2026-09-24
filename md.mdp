@@ -1,0 +1,42 @@
+integrator               = md
+nsteps                   = 50000     ; 2 * 50000 = 100 ps (or you can increase later)
+dt                       = 0.002     
+; Output control
+nstxout                  = 1000
+nstvout                  = 1000
+nstenergy                = 1000
+nstlog                   = 1000
+nstxtcout                = 1000      ; frequency to write coordinates to xtc trajectory
+xtc-precision            = 1000
+; Bond parameters
+continuation             = yes       ; Restarting from NPT 
+constraint_algorithm     = lincs     
+constraints              = h-bonds   
+lincs_iter               = 1
+lincs_order              = 4
+; Nonbonded settings
+cutoff-scheme            = Verlet
+ns_type                  = grid      
+nstlist                  = 10
+rcoulomb                 = 1.0       
+rvdw                     = 1.0       
+DispCorr                 = EnerPres  
+; Electrostatics
+coulombtype              = PME       
+pme_order                = 4
+fourierspacing           = 0.16
+; Temperature coupling is on
+tcoupl                   = V-rescale             
+tc-grps                  = Protein Non-Protein   
+tau_t                    = 0.1     0.1           
+ref_t                    = 300     300           
+; Pressure coupling is on
+pcoupl                   = C-rescale             
+pcoupltype               = isotropic             
+tau_p                    = 2.0                   
+ref_p                    = 1.0                   
+compressibility          = 4.5e-5                
+; Periodic boundary conditions
+pbc                      = xyz       
+; Velocity generation
+gen_vel                  = no        
