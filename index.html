@@ -4,21 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Molecular Docking 3D Viewer - Liana Hovsepyan</title>
+    <!-- NGL Viewer Library -->
+    <script src="https://cdn.jsdelivr.net/npm/ngl@2.0.0/dist/ngl.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f4f4f9; text-align: center; }
-        h1 { color: #333; }
-        p { color: #666; }
-        .viewer-container { width: 80%; height: 600px; margin: 20px auto; border: 2px solid #ccc; border-radius: 8px; overflow: hidden; background: #fff; }
-        iframe { width: 100%; height: 100%; border: none; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #1a1a1a; color: #fff; display: flex; flex-direction: column; height: 100vh; }
+        header { padding: 15px; background: #2b2b2b; text-align: center; border-bottom: 1px solid #444; }
+        h1 { margin: 0; font-size: 20px; color: #4CAF50; }
+        #viewport { width: 100%; flex-grow: 1; position: relative; }
+        .controls { padding: 10px; background: #2b2b2b; text-align: center; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        button { background: #4CAF50; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #45a049; }
     </style>
 </head>
 <body>
-    <h1>Molecular Docking 3D Viewer</h1>
-    <p>Interactive 3D visualization of protein-ligand complex.</p>
-    
-    <div class="viewer-container">
-        <!-- Mol* Viewer embedded directly -->
-        <iframe src="https://molstar.org/viewer/?url=https://raw.githubusercontent.com/lianahovsepyan/molecular-docking-viewer/main/protein_clean.pdb"></iframe>
+    <header>
+        <h1>Molecular Docking 3D Viewer</h1>
+        <p style="margin: 5px 0 0 0; font-size: 14px; color: #aaa;">Interactive Protein-Ligand Complex Viewer</p>
+    </header>
+
+    <div id="viewport"></div>
+
+    <div class="controls">
+        <button onclick="stage.setRepresentation('cartoon')">Cartoon View</button>
+        <button onclick="stage.setRepresentation('surface')">Surface View</button>
+        <button onclick="stage.setRepresentation('ball+stick')">Ball & Stick</button>
+        <button onclick="stage.autoView()">Reset View</button>
     </div>
+
+    <script>
+        let stage;
+        document.addEventListener("DOMContentLoaded", function () {
+            stage = new NGL.Stage("viewport");
+            window.addEventListener("resize", function () {
+                stage.handleResize();
+            });
+
+            // Load protein PDB directly from GitHub raw URL
+            let pdbUrl = "https://raw.githubusercontent.com/lianahovsepyan/molecular-docking-viewer/main/protein_clean.pdb";
+
+            stage.loadFile(pdbUrl, { defaultRepresentation: true }).then(function (component) {
+                component.autoView();
+            }).catch(function(err) {
+                console.error("Error loading PDB:", err);
+                alert("Could not load PDB file. Please check file path.");
+            });
+        });
+
+        // Helper function to change representation easily via buttons
+        NGL.Stage.prototype.setRepresentation = function(repType) {
+            this.eachComponent(function (comp) {
+                comp.removeAllRepresentations();
+                comp.addRepresentation(repType, { color: "chainname" });
+            });
+        };
+    </script>
 </body>
 </html>
