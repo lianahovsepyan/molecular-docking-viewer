@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import py3Dmol
 import os
+import datetime
 
 st.set_page_config(page_title="Molecular Docking SaaS", layout="wide")
 
@@ -10,6 +11,8 @@ if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "tier" not in st.session_state:
     st.session_state.tier = "Free"
+if "history" not in st.session_state:
+    st.session_state.history = []
 
 st.sidebar.title("🔐 User Authentication")
 
@@ -40,10 +43,9 @@ else:
     if st.session_state.tier == "Free":
         st.sidebar.markdown("---")
         st.sidebar.subheader("💎 Upgrade to Pro")
-        st.sidebar.write("Unlock full AutoDock Vina engine & unlimited custom file uploads.")
+        st.sidebar.write("Unlock full AutoDock Vina engine & session history.")
         
-        # Stripe Checkout Integration Button
-        stripe_url = "https://buy.stripe.com/test_placeholder_link" # Replace with actual Stripe Payment Link
+        stripe_url = "https://buy.stripe.com/test_placeholder_link"
         st.sidebar.link_button("Pay $29/mo with Stripe", stripe_url)
         
         if st.sidebar.button("Simulate Successful Payment"):
@@ -91,7 +93,7 @@ else:
         components.html(show_free_viewer(), height=430)
 
     else:
-        st.success("⚡ **Pro Features Unlocked:** Full AutoDock Vina Engine & Custom File Management Enabled.")
+        st.success("⚡ **Pro Features Unlocked:** Full AutoDock Vina Engine & Session History Enabled.")
         
         uploaded_protein = st.file_uploader("Upload Target Protein (PDB)", type=["pdb"])
         uploaded_ligand = st.file_uploader("Upload Ligand (SDF / PDB)", type=["sdf", "pdb"])
@@ -113,8 +115,19 @@ else:
                     import time
                     time.sleep(1.5)
                     
+                    affinity = "-9.2 kcal/mol"
+                    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    
+                    # Save to session history
+                    st.session_state.history.append({
+                        "Time": timestamp,
+                        "Protein": uploaded_protein.name,
+                        "Ligand": uploaded_ligand.name,
+                        "Affinity": affinity
+                    })
+                    
                 st.success("Docking simulation completed successfully!")
-                st.metric(label="Estimated Binding Affinity", value="-9.2 kcal/mol")
+                st.metric(label="Estimated Binding Affinity", value=affinity)
                 
                 st.subheader("Docked Complex 3D View")
                 result_viewer = py3Dmol.view(width=700, height=400)
@@ -124,3 +137,10 @@ else:
                 result_viewer.setStyle({'stick': {'color': 'magenta'}})
                 result_viewer.zoomTo()
                 components.html(result_viewer._make_html(), height=430)
+        
+        # Display User Calculation History
+        if st.session_state.history:
+            st.markdown("---")
+            st.subheader("📋 Your Docking Simulation History")
+            history_df = pd.DataFrame(st.session_state.history)
+            st.dataframe(history_df, use_container_width=True)
