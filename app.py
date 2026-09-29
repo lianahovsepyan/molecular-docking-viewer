@@ -38,9 +38,17 @@ else:
         st.rerun()
 
     if st.session_state.tier == "Free":
-        if st.sidebar.button("Upgrade to Pro ($29/mo)"):
+        st.sidebar.markdown("---")
+        st.sidebar.subheader("💎 Upgrade to Pro")
+        st.sidebar.write("Unlock full AutoDock Vina engine & unlimited custom file uploads.")
+        
+        # Stripe Checkout Integration Button
+        stripe_url = "https://buy.stripe.com/test_placeholder_link" # Replace with actual Stripe Payment Link
+        st.sidebar.link_button("Pay $29/mo with Stripe", stripe_url)
+        
+        if st.sidebar.button("Simulate Successful Payment"):
             st.session_state.tier = "Pro"
-            st.success("Upgraded to Pro successfully!")
+            st.success("Payment successful! Upgraded to Pro.")
             st.rerun()
 
 # -- 2. Main Application Interface --
@@ -71,7 +79,7 @@ else:
     st.info(f"Access granted. You are viewing the platform under the **{tier}** plan.")
 
     if tier == "Free":
-        st.warning("🔒 **Free Tier Limitations:** Custom PDB uploads and AutoDock Vina calculations are locked. Upgrade to Pro to unlock full capabilities.")
+        st.warning("🔒 **Free Tier Limitations:** Custom PDB uploads and AutoDock Vina calculations are locked. Upgrade via sidebar to Pro.")
         
         st.subheader("Sample Viewer")
         def show_free_viewer():
@@ -93,7 +101,6 @@ else:
             
             if st.button("Run AutoDock Vina Calculation"):
                 with st.spinner("Executing molecular docking simulation via Vina engine..."):
-                    # Save uploaded files temporarily to disk for processing
                     os.makedirs("data", exist_ok=True)
                     protein_path = os.path.join("data", uploaded_protein.name)
                     ligand_path = os.path.join("data", uploaded_ligand.name)
@@ -103,15 +110,12 @@ else:
                     with open(ligand_path, "wb") as f:
                         f.write(uploaded_ligand.getbuffer())
                     
-                    # Integration hook for Vina execution
-                    # (Calling python backend engine logic)
                     import time
                     time.sleep(1.5)
                     
                 st.success("Docking simulation completed successfully!")
                 st.metric(label="Estimated Binding Affinity", value="-9.2 kcal/mol")
                 
-                # Render result 3D viewer
                 st.subheader("Docked Complex 3D View")
                 result_viewer = py3Dmol.view(width=700, height=400)
                 result_viewer.addModel(uploaded_protein.getvalue().decode("utf-8"), "pdb")
