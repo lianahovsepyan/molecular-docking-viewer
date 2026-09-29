@@ -51,6 +51,148 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# -- Translations Dictionary --
+TRANSLATIONS = {
+    "Հայերեն": {
+        "title": "HelixDock SaaS Հարթակ",
+        "subtitle": "Ամպային պլատֆորմ՝ իրական RCSB PDB շտեմարանից սպիտակուցների ներբեռնման և ավտոմատացված դոկինգի համար։",
+        "account": "Օգտատիրոջ հաշիվ",
+        "login": "Մուտք",
+        "signup": "Գրանցվել",
+        "email": "Էլ. հասցե (Email)",
+        "password": "Գաղտնաբառ",
+        "login_btn": "Մուտք գործել",
+        "reg_btn": "Գրանցվել",
+        "logout": "Դուրս գալ (Log out)",
+        "plan_free": "Անվճար",
+        "plan_pro": "Պրոֆեսիոնալ",
+        "upgrade_title": "💎 Բարելավել մինչև Pro ($29/ամիս)",
+        "pay_method": "Ընտրեք վճարման համակարգը՝",
+        "stripe_opt": "💳 Միջազգային (Stripe)",
+        "armenian_opt": "🇦🇲 Հայկական (ArCa / Idram)",
+        "card_num": "Քարտի համարը (Visa/Mastercard)",
+        "expiry": "Ժամկետ (MM/YY)",
+        "cvc": "CVC/CVV",
+        "local_provider": "Վճարման եղանակ",
+        "local_num": "Քարտի համար / Հեռախոսահամար",
+        "pay_btn": "✅ Հաստատել և Վճարել",
+        "pay_success": "Վճարումը հաստատվեց! Pro պլանն ակտիվ է։",
+        "login_error": "Սխալ էլ. հասցե կամ գաղտնաբառ:",
+        "reg_success": "Գրանցումն հաջողվեց! Այժմ կարող եք մուտք գործել:",
+        "reg_error": "Այս էլ. հասցեն արդեն գրանցված է:",
+        "fill_all": "Լրացրեք բոլոր դաշտերը:",
+        "lock_msg": "🔒 Խնդրում ենք մուտք գործել կամ գրանցվել կողային վահանակից՝ հարթակից օգտվելու համար։",
+        "free_lock": "🔒 Անվճար պլան․ Իրական շտեմարանից ներբեռնումները և ավտոմատացված դոկինգը հասանելի են միայն Pro տարբերակում։ Խնդրում ենք բարելավել պլանը ձախ վահանակից։",
+        "pro_active": "⚡ Pro ռեժիմը լիարժեք ակտիվ է։",
+        "input_choice": "Ընտրեք սպիտակուցի ստացման եղանակը՝",
+        "opt1": "Ներբեռնել իրական սպիտակուց RCSB PDB բազայից (ըստ ID-ի)",
+        "opt2": "Վերբեռնել ֆայլ համակարգչից (PDB/SDF)",
+        "pdb_input": "Մուտքագրեք PDB ID (օրինակ՝ 1CRN, 1HHO)",
+        "fetch_btn": "📥 Քաշել PDB բազայից",
+        "fetching": "Ներբեռնվում է",
+        "fetch_ok": "Հաջողությամբ ներբեռնվեց",
+        "fetch_err": "Չհաջողվեց գտնել տվյալ PDB ID-ն:",
+        "run_dock": "🚀 Գործարկել AutoDock Vina դոկինգի հաշվարկը",
+        "running": "Կատարվում է մոլեկուլային դոկինգի սիմուլյացիա...",
+        "dock_ok": "Դոկինգն հաջողությամբ ավարտվեց!",
+        "affinity": "Կապակցման էներգիա (Binding Affinity)",
+        "viewer_title": "🔬 3D Molecular Complex Viewer",
+        "history_title": "📋 Ձեր կատարված հաշվարկների պատմությունը"
+    },
+    "English": {
+        "title": "HelixDock SaaS Platform",
+        "subtitle": "Cloud platform for downloading real proteins from the RCSB PDB database and automated docking.",
+        "account": "User Account",
+        "login": "Login",
+        "signup": "Sign Up",
+        "email": "Email Address",
+        "password": "Password",
+        "login_btn": "Log In",
+        "reg_btn": "Register",
+        "logout": "Log Out",
+        "plan_free": "Free",
+        "plan_pro": "Pro",
+        "upgrade_title": "💎 Upgrade to Pro ($29/mo)",
+        "pay_method": "Select payment system:",
+        "stripe_opt": "💳 International (Stripe)",
+        "armenian_opt": "🇦🇲 Armenian (ArCa / Idram)",
+        "card_num": "Card Number (Visa/Mastercard)",
+        "expiry": "Expiry (MM/YY)",
+        "cvc": "CVC/CVV",
+        "local_provider": "Payment Method",
+        "local_num": "Card Number / Phone Number",
+        "pay_btn": "✅ Confirm and Pay",
+        "pay_success": "Payment confirmed! Pro plan is active.",
+        "login_error": "Invalid email or password.",
+        "reg_success": "Registration successful! You can now log in.",
+        "reg_error": "This email is already registered.",
+        "fill_all": "Please fill in all fields.",
+        "lock_msg": "🔒 Please log in or sign up from the sidebar to use the platform.",
+        "free_lock": "🔒 Free Tier: Downloading real proteins and automated docking are available in Pro version only. Please upgrade from the left panel.",
+        "pro_active": "⚡ Pro mode is fully active.",
+        "input_choice": "Choose protein input method:",
+        "opt1": "Download real protein from RCSB PDB (by ID)",
+        "opt2": "Upload file from computer (PDB/SDF)",
+        "pdb_input": "Enter PDB ID (e.g., 1CRN, 1HHO)",
+        "fetch_btn": "📥 Fetch from PDB",
+        "fetching": "Downloading",
+        "fetch_ok": "Successfully downloaded",
+        "fetch_err": "Could not find the specified PDB ID.",
+        "run_dock": "🚀 Run AutoDock Vina Docking",
+        "running": "Running molecular docking simulation...",
+        "dock_ok": "Docking completed successfully!",
+        "affinity": "Binding Affinity",
+        "viewer_title": "🔬 3D Molecular Complex Viewer",
+        "history_title": "📋 Your Calculation History"
+    },
+    "Русский": {
+        "title": "HelixDock SaaS Платформа",
+        "subtitle": "Облачная платформа для загрузки реальных белков из базы данных RCSB PDB и автоматического докинга.",
+        "account": "Аккаунт пользователя",
+        "login": "Вход",
+        "signup": "Регистрация",
+        "email": "Эл. почта",
+        "password": "Пароль",
+        "login_btn": "Войти",
+        "reg_btn": "Зарегистрироваться",
+        "logout": "Выйти (Log out)",
+        "plan_free": "Бесплатный",
+        "plan_pro": "Профессиональный",
+        "upgrade_title": "💎 Перейте на Pro ($29/мес)",
+        "pay_method": "Выберите платежную систему:",
+        "stripe_opt": "💳 Международная (Stripe)",
+        "armenian_opt": "🇦🇲 Армянская (ArCa / Idram)",
+        "card_num": "Номер карты (Visa/Mastercard)",
+        "expiry": "Срок (MM/YY)",
+        "cvc": "CVC/CVV",
+        "local_provider": "Способ оплаты",
+        "local_num": "Номер карты / Номер телефона",
+        "pay_btn": "✅ Подтвердить и оплатить",
+        "pay_success": "Платеж подтвержден! Pro план активен.",
+        "login_error": "Неверный email или пароль.",
+        "reg_success": "Регистрация успешна! Теперь вы можете войти.",
+        "reg_error": "Этот email уже зарегистрирован.",
+        "fill_all": "Заполните все поля.",
+        "lock_msg": "🔒 Пожалуйста, войдите или зарегистрируйтесь в боковой панели для использования платформы.",
+        "free_lock": "🔒 Бесплатный тариф: Загрузка реальных белков и автоматический докинг доступны только в версии Pro. Пожалуйста, улучшите тариф слева.",
+        "pro_active": "⚡ Режим Pro полностью активен.",
+        "input_choice": "Выберите способ получения белка:",
+        "opt1": "Скачать реальный белок из базы RCSB PDB (по ID)",
+        "opt2": "Загрузить файл с компьютера (PDB/SDF)",
+        "pdb_input": "Введите PDB ID (например, 1CRN, 1HHO)",
+        "fetch_btn": "📥 Скачать из PDB",
+        "fetching": "Загружается",
+        "fetch_ok": "Успешно загружено",
+        "fetch_err": "Не удалось найти указанный PDB ID.",
+        "run_dock": "🚀 Запустить расчет AutoDock Vina",
+        "running": "Выполняется симуляция молекулярного докинга...",
+        "dock_ok": "Докинг успешно завершен!",
+        "affinity": "Энергия связывания (Binding Affinity)",
+        "viewer_title": "🔬 3D Molecular Complex Viewer",
+        "history_title": "📋 История ваших расчетов"
+    }
+}
+
 # -- Database Setup --
 def init_db():
     conn = sqlite3.connect("users.db")
@@ -110,6 +252,10 @@ if "tier" not in st.session_state:
 if "history" not in st.session_state:
     st.session_state.history = []
 
+# -- Language Selector in Sidebar --
+selected_lang = st.sidebar.selectbox("🌐 Լեզու / Language / Язык", ["Հայերեն", "English", "Русский"])
+t = TRANSLATIONS[selected_lang]
+
 # -- Sidebar Authentication & Branding --
 st.sidebar.markdown("""
     <div class="logo-container">
@@ -119,15 +265,15 @@ st.sidebar.markdown("""
 """, unsafe_allow_html=True)
 st.sidebar.markdown("---")
 
-auth_mode = st.sidebar.radio("Օգտատիրոջ հաշիվ՝", ["Մուտք (Login)", "Գրանցվել (Sign Up)"])
+auth_mode = st.sidebar.radio(f"{t['account']}՝", [t["login"], t["signup"]])
 
 if not st.session_state.logged_in:
-    if auth_mode == "Մուտք (Login)":
-        st.sidebar.subheader("Մուտք համակարգ")
-        login_email = st.sidebar.text_input("Էլ. հասցե (Email)")
-        login_pass = st.sidebar.text_input("Գաղտնաբառ", type="password")
+    if auth_mode == t["login"]:
+        st.sidebar.subheader(t["login"])
+        login_email = st.sidebar.text_input(t["email"])
+        login_pass = st.sidebar.text_input(t["password"], type="password")
         
-        if st.sidebar.button("Մուտք գործել"):
+        if st.sidebar.button(t["login_btn"]):
             valid, user_tier = verify_user(login_email, login_pass)
             if valid:
                 st.session_state.logged_in = True
@@ -135,25 +281,25 @@ if not st.session_state.logged_in:
                 st.session_state.tier = user_tier
                 st.rerun()
             else:
-                st.sidebar.error("Սխալ էլ. հասցե կամ գաղտնաբառ:")
+                st.sidebar.error(t["login_error"])
     else:
-        st.sidebar.subheader("Նոր հաշվի ստեղծում")
-        reg_email = st.sidebar.text_input("Նոր Էլ. հասցե")
-        reg_pass = st.sidebar.text_input("Ստեղծեք գաղտնաբառ", type="password")
+        st.sidebar.subheader(t["signup"])
+        reg_email = st.sidebar.text_input(t["email"])
+        reg_pass = st.sidebar.text_input(t["password"], type="password")
         
-        if st.sidebar.button("Գրանցվել"):
+        if st.sidebar.button(t["reg_btn"]):
             if reg_email and reg_pass:
                 if register_user(reg_email, reg_pass):
-                    st.sidebar.success("Գրանցումն հաջողվեց! Այժմ կարող եք մուտք գործել:")
+                    st.sidebar.success(t["reg_success"])
                 else:
-                    st.sidebar.error("Այս էլ. հասցեն արդեն գրանցված է:")
+                    st.sidebar.error(t["reg_error"])
             else:
-                st.sidebar.warning("Լրացրեք բոլոր դաշտերը:")
+                st.sidebar.warning(t["fill_all"])
 else:
     st.sidebar.success(f"👤 {st.session_state.email}")
-    st.sidebar.info(f"Պլան՝ **{st.session_state.tier} Tier**")
+    st.sidebar.info(f"{t['plan_pro'] if st.session_state.tier == 'Pro' else t['plan_free']} Tier")
     
-    if st.sidebar.button("Դուրս գալ (Log out)"):
+    if st.sidebar.button(t["logout"]):
         st.session_state.logged_in = False
         st.session_state.email = ""
         st.session_state.tier = "Free"
@@ -161,82 +307,82 @@ else:
 
     if st.session_state.tier == "Free":
         st.sidebar.markdown("---")
-        st.sidebar.subheader("💎 Բարելավել մինչև Pro ($29/ամիս)")
+        st.sidebar.subheader(t["upgrade_title"])
         
         # Embedded Payment System UI
         st.sidebar.markdown('<div class="payment-box">', unsafe_allow_html=True)
-        payment_method = st.sidebar.radio("Ընտրեք վճարման համակարգը՝", 
-                                          ["💳 Միջազգային (Stripe)", "🇦🇲 Հայկական (ArCa / Idram)"])
+        payment_method = st.sidebar.radio(t["pay_method"], 
+                                          [t["stripe_opt"], t["armenian_opt"]])
         
-        if payment_method == "💳 Միջազգային (Stripe)":
-            st.sidebar.text_input("Քարտի համարը (Visa/Mastercard)", placeholder="0000 0000 0000 0000", max_chars=19)
+        if payment_method == t["stripe_opt"]:
+            st.sidebar.text_input(t["card_num"], placeholder="0000 0000 0000 0000", max_chars=19)
             col1, col2 = st.sidebar.columns(2)
             with col1:
-                st.text_input("Ժամկետ (MM/YY)", placeholder="12/26", max_chars=5)
+                st.text_input(t["expiry"], placeholder="12/26", max_chars=5)
             with col2:
-                st.text_input("CVC/CVV", placeholder="123", type="password", max_chars=3)
+                st.text_input(t["cvc"], placeholder="123", type="password", max_chars=3)
         else:
-            st.sidebar.selectbox("Վճարման եղանակ", ["ArCa Քարտ", "Ամերիաբանկ vPOS", "Idram Դրամապանակ", "Telcell Wallet"])
-            st.sidebar.text_input("Քարտի համար / Հեռախոսահամար", placeholder="... ... ...")
+            st.sidebar.selectbox(t["local_provider"], ["ArCa Քարտ / Card", "Ամերիաբանկ vPOS", "Idram Դրամապանակ", "Telcell Wallet"])
+            st.sidebar.text_input(t["local_num"], placeholder="... ... ...")
         
         st.sidebar.markdown('</div>', unsafe_allow_html=True)
         
-        if st.sidebar.button("✅ Հաստատել և Վճարել"):
-            with st.spinner("Կապ է հաստատվում բանկի հետ..."):
-                time.sleep(2) # Կեղծում ենք բանկի հետ կապը
+        if st.sidebar.button(t["pay_btn"]):
+            with st.spinner("..."):
+                time.sleep(2)
                 update_user_tier(st.session_state.email, "Pro")
                 st.session_state.tier = "Pro"
-            st.success("Վճարումը հաստատվեց! Pro պլանն ակտիվ է։")
+            st.success(t["pay_success"])
             st.rerun()
 
 # -- Main Application Interface --
-st.markdown("""
+st.markdown(f"""
     <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
         <span style="font-size: 40px;">🧬</span>
         <div>
-            <h1 style="margin: 0; font-size: 32px;">HelixDock SaaS Platform</h1>
-            <p style="margin: 0; color: #9CA3AF;">Ամպային պլատֆորմ՝ իրական RCSB PDB շտեմարանից սպիտակուցների ներբեռնման և ավտոմատացված դոկինգի համար։</p>
+            <h1 style="margin: 0; font-size: 32px;">{t['title']}</h1>
+            <p style="margin: 0; color: #9CA3AF;">{t['subtitle']}</p>
         </div>
     </div>
 """, unsafe_allow_html=True)
 
 if not st.session_state.logged_in:
-    st.warning("🔒 Խնդրում ենք մուտք գործել կամ գրանցվել կողային վահանակից՝ հարթակից օգտվելու համար։")
+    st.warning(t["lock_msg"])
 else:
     tier = st.session_state.tier
-    st.info(f"Ակտիվ հաշիվ՝ **{st.session_state.email}** | Կարգավիճակը՝ **{tier}**")
+    st.info(f"Account: **{st.session_state.email}** | Status: **{tier}**")
 
     if tier == "Free":
-        st.warning("🔒 Անվճար պլան․ Իրական շտեմարանից ներբեռնումները և ավտոմատացված դոկինգը հասանելի են միայն Pro տարբերակում։ Խնդրում ենք բարելավել պլանը ձախ վահանակից։")
+        st.warning(t["free_lock"])
     else:
-        st.success("⚡ Pro ռեժիմը լիարժեք ակտիվ է։")
+        st.success(t["pro_active"])
         
-        input_method = st.radio("Ընտրեք սպիտակուցի ստացման եղանակը՝", ["Ներբեռնել իրական սպիտակուց RCSB PDB բազայից (ըստ ID-ի)", "Վերբեռնել ֆայլ համակարգչից (PDB/SDF)"])
+        input_method = st.radio(t["input_choice"], [t["opt1"], t["opt2"]])
         
         protein_data = None
         protein_name = ""
         ligand_data = None
         ligand_name = ""
 
-        if input_method == "Ներբեռնել իրական սպիտակուց RCSB PDB բազայից (ըստ ID-ի)":
+        if input_method == t["opt1"]:
             col1, col2 = st.columns(2)
             with col1:
-                pdb_id = st.text_input("Մուտքագրեք PDB ID (օրինակ՝ 1CRN, 1HHO)", value="1CRN").strip().upper()
+                pdb_id = st.text_input(t["pdb_input"], value="1CRN").strip().upper()
             with col2:
                 st.write("")
                 st.write("")
-                fetch_btn = st.button("📥 Քաշել PDB բազայից")
+                fetch_btn = st.button(t["fetch_btn"])
             
             if fetch_btn and pdb_id:
-                with st.spinner(f"Ներբեռնվում է {pdb_id} սպիտակուցը..."):
+                with st.spinner(f"{t['fetching']} {pdb_id}..."):
                     url = f"https://files.rcsb.org/download/{pdb_id}.pdb"
                     response = requests.get(url)
                     if response.status_code == 200:
                         st.session_state.fetched_pdb = response.text
                         st.session_state.fetched_name = f"{pdb_id}.pdb"
-                        st.success(f"Հաջողությամբ ներբեռնվեց {pdb_id}-ն!")
+                        st.success(f"{t['fetch_ok']} {pdb_id}!")
                     else:
-                        st.error("Չհաջողվեց գտնել տվյալ PDB ID-ն:")
+                        st.error(t["fetch_err"])
             
             if "fetched_pdb" in st.session_state:
                 protein_data = st.session_state.fetched_pdb
@@ -267,8 +413,8 @@ else:
                 ligand_name = uploaded_ligand.name
 
         if protein_data and ligand_data:
-            if st.button("🚀 Գործարկել AutoDock Vina դոկինգի հաշվարկը"):
-                with st.spinner("Կատարվում է մոլեկուլային դոկինգի սիմուլյացիա..."):
+            if st.button(t["run_dock"]):
+                with st.spinner(t["running"]):
                     time.sleep(2.0)
                     affinity = "-11.4 kcal/mol" if "1CRN" in protein_name else "-9.8 kcal/mol"
                     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -280,10 +426,10 @@ else:
                         "Affinity": affinity
                     })
                     
-                st.success("Դոկինգն հաջողությամբ ավարտվեց!")
-                st.metric(label="Binding Affinity (Կապակցման էներգիա)", value=affinity)
+                st.success(t["dock_ok"])
+                st.metric(label=t["affinity"], value=affinity)
                 
-                st.subheader("🔬 3D Molecular Complex Viewer")
+                st.subheader(t["viewer_title"])
                 result_viewer = py3Dmol.view(width=800, height=500)
                 result_viewer.addModel(protein_data, "pdb")
                 result_viewer.setStyle({'cartoon': {'color': 'cyan'}})
@@ -294,6 +440,6 @@ else:
         
         if st.session_state.history:
             st.markdown("---")
-            st.subheader("📋 Ձեր կատարված հաշվարկների պատմությունը")
+            st.subheader(t["history_title"])
             history_df = pd.DataFrame(st.session_state.history)
             st.dataframe(history_df, use_container_width=True)
