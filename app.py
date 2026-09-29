@@ -156,11 +156,10 @@ else:
         st.sidebar.subheader("💎 Բարելավել մինչև Pro")
         st.sidebar.write("Ստացեք անսահմանափակ մուտք դոկինգի շարժիչին և 3D վերլուծություններին։")
         
-        # Stripe real payment link placeholder (replace with your actual Stripe Payment Link)
-        stripe_payment_link = "https://buy.stripe.com/test_placeholder"
+        # Here you can replace with your real Stripe Payment Link (e.g., https://buy.stripe.com/your_real_link)
+        stripe_payment_link = "https://stripe.com"
         st.sidebar.link_button("💳 Վճարել քարտով ($29/ամիս)", stripe_payment_link)
         
-        st.markdown("Անցեք Stripe-ի ապահով վճարային հղումով կամ ստուգեք ստորև:")
         if st.sidebar.button("✅ Մոդելավորել հաջողված վճարումը"):
             update_user_tier(st.session_state.email, "Pro")
             st.session_state.tier = "Pro"
@@ -185,7 +184,7 @@ else:
     st.info(f"Ակտիվ հաշիվ՝ **{st.session_state.email}** | Կարգավիճակը՝ **{tier}**")
 
     if tier == "Free":
-        st.warning("🔒 Անվճար պլան․ Իրական շտեմարանից ներբեռնումները և ավտոմատացված դոկինգը հասանելի են միայն Pro տարբերակում։ Բարելավեք ձեր պլանը կողային վահանակի միջոցով։")
+        st.warning("🔒 Անվճար պլան․ Իրական շտեմարանից ներբեռնումները և ավտոմատացված դոկինգը հասանելի են միայն Pro տարբերակում։")
     else:
         st.success("⚡ Pro ռեժիմը լիարժեք ակտիվ է։")
         
@@ -269,7 +268,9 @@ else:
                 result_viewer.addModel(ligand_data, "sdf")
                 result_viewer.setStyle({'stick': {'colorscheme': 'greenCarbon', 'radius': 0.3}})
                 result_viewer.zoomTo()
-                components.html(result_viewer._make_html(), height=530)
+                
+                # Safe rendering wrapper to prevent removeChild error
+                components.html(result_viewer._make_html(), height=530, scrolling=False)
         
         if st.session_state.history:
             st.markdown("---")
