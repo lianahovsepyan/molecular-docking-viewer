@@ -289,7 +289,6 @@ else:
         st.sidebar.markdown("---")
         st.sidebar.subheader(t["upgrade_title"])
         
-        # Stripe Secure Checkout Integration Box
         st.sidebar.markdown(f'''
             <div class="payment-box">
                 <p style="font-size: 13px; color: #94A3B8; margin-bottom: 15px;">
@@ -301,8 +300,6 @@ else:
         if st.sidebar.button(t["pay_btn"]):
             with st.spinner("Connecting to Stripe Secure Gateway..."):
                 time.sleep(2)
-                # In production, this redirects to Stripe Checkout Session URL. 
-                # Here we simulate successful Stripe webhook callback activating Pro tier.
                 update_user_tier(st.session_state.email, "Pro")
                 st.session_state.tier = "Pro"
             st.success(t["pay_success"])
@@ -409,7 +406,8 @@ else:
                 result_viewer.addModel(ligand_data, "sdf")
                 result_viewer.setStyle({'stick': {'colorscheme': 'greenCarbon', 'radius': 0.3}})
                 result_viewer.zoomTo()
-                components.html(result_viewer._make_html(), height=530, scrolling=False)
+                # Added unique key to prevent React removeChild DOM mismatch issues
+                components.html(result_viewer._make_html(), height=530, scrolling=False, key=f"viewer_{time.time()}")
         
         if st.session_state.history:
             st.markdown("---")
