@@ -8,7 +8,40 @@ import sqlite3
 import hashlib
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Molecular Docking SaaS", layout="wide")
+st.set_page_config(page_title="HelixDock SaaS - Molecular Docking", layout="wide", page_icon="🧬")
+
+# -- Custom CSS for Pro SaaS Styling --
+st.markdown("""
+    <style>
+    .main {
+        background-color: #0e1117;
+        color: #ffffff;
+    }
+    .stButton>button {
+        width: 100%;
+        border-radius: 8px;
+        font-weight: bold;
+        background-color: #4F46E5;
+        color: white;
+    }
+    .stButton>button:hover {
+        background-color: #4338CA;
+    }
+    .logo-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-bottom: 10px;
+    }
+    .logo-text {
+        font-size: 26px;
+        font-weight: 800;
+        background: linear-gradient(90deg, #4F46E5, #EC4899);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 # -- Database Setup --
 def init_db():
@@ -69,9 +102,16 @@ if "tier" not in st.session_state:
 if "history" not in st.session_state:
     st.session_state.history = []
 
-st.sidebar.title("🔐 Ogtatiroj nujnakanacum")
+# -- Sidebar Authentication & Branding --
+st.sidebar.markdown("""
+    <div class="logo-container">
+        <span style="font-size: 32px;">🧬</span>
+        <span class="logo-text">HelixDock</span>
+    </div>
+""", unsafe_allow_html=True)
+st.sidebar.markdown("---")
 
-auth_mode = st.sidebar.radio("Ընտրեք ռեժիմը՝", ["Մուտք (Login)", "Գրանցվել (Sign Up)"])
+auth_mode = st.sidebar.radio("Օգտատիրոջ հաշիվ՝", ["Մուտք (Login)", "Գրանցվել (Sign Up)"])
 
 if not st.session_state.logged_in:
     if auth_mode == "Մուտք (Login)":
@@ -87,7 +127,7 @@ if not st.session_state.logged_in:
                 st.session_state.tier = user_tier
                 st.rerun()
             else:
-                st.sidebar.error("Սխալ էլ. հասցե hoặc գաղտնաբառ:")
+                st.sidebar.error("Սխալ էլ. հասցե կամ գաղտնաբառ:")
     else:
         st.sidebar.subheader("Նոր հաշվի ստեղծում")
         reg_email = st.sidebar.text_input("Նոր Էլ. հասցե")
@@ -102,8 +142,8 @@ if not st.session_state.logged_in:
             else:
                 st.sidebar.warning("Լրացրեք բոլոր դաշտերը:")
 else:
-    st.sidebar.success(f"Բարի գալուստ, {st.session_state.email}!")
-    st.sidebar.info(f"Ընթացիկ պլան՝ **{st.session_state.tier} Tier**")
+    st.sidebar.success(f"👤 {st.session_state.email}")
+    st.sidebar.info(f"Պլան՝ **{st.session_state.tier} Tier**")
     
     if st.sidebar.button("Դուրս գալ (Log out)"):
         st.session_state.logged_in = False
@@ -113,30 +153,41 @@ else:
 
     if st.session_state.tier == "Free":
         st.sidebar.markdown("---")
-        st.sidebar.subheader("💎 Թարմացնել Pro-ին")
-        stripe_url = "https://buy.stripe.com/test_placeholder_link"
-        st.sidebar.link_button("Վճարել $29/ամիս Stripe-ով", stripe_url)
+        st.sidebar.subheader("💎 Բարելավել մինչև Pro")
+        st.sidebar.write("Ստացեք անսահմանափակ մուտք դոկինգի շարժիչին և 3D վերլուծություններին։")
         
-        if st.sidebar.button("Մոդելավորել հաջողված վճարումը"):
+        # Stripe real payment link placeholder (replace with your actual Stripe Payment Link)
+        stripe_payment_link = "https://buy.stripe.com/test_placeholder"
+        st.sidebar.link_button("💳 Վճարել քարտով ($29/ամիս)", stripe_payment_link)
+        
+        st.markdown("Անցեք Stripe-ի ապահով վճարային հղումով կամ ստուգեք ստորև:")
+        if st.sidebar.button("✅ Մոդելավորել հաջողված վճարումը"):
             update_user_tier(st.session_state.email, "Pro")
             st.session_state.tier = "Pro"
-            st.success("Վճարումը հաջողվեց! Ակտիվացավ Pro պլանը:")
+            st.success("Վճարումը հաջողվեց! Pro պլանն ակտիվ է։")
             st.rerun()
 
 # -- Main Application Interface --
-st.title("🧬 Մոլեկուլային Դոկինգի և Դեղերի Հայտնաբերման SaaS")
-st.markdown("Ամպային պլատֆորմ՝ իրական RCSB PDB շտեմարանից սպիտակուցների ներբեռնման և դոկինգի հաշվարկների համար։")
+st.markdown("""
+    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+        <span style="font-size: 40px;">🧬</span>
+        <div>
+            <h1 style="margin: 0; font-size: 32px;">HelixDock SaaS Platform</h1>
+            <p style="margin: 0; color: #9CA3AF;">Ամպային պլատֆորմ՝ իրական RCSB PDB շտեմարանից սպիտակուցների ներբեռնման և ավտոմատացված դոկինգի համար։</p>
+        </div>
+    </div>
+""", unsafe_allow_html=True)
 
 if not st.session_state.logged_in:
     st.warning("🔒 Խնդրում ենք մուտք գործել կամ գրանցվել կողային վահանակից՝ հարթակից օգտվելու համար։")
 else:
     tier = st.session_state.tier
-    st.info(f"Մուտքը թույլատրված է։ Ձեր հաշիվը՝ {st.session_state.email} ({tier} պլան):")
+    st.info(f"Ակտիվ հաշիվ՝ **{st.session_state.email}** | Կարգավիճակը՝ **{tier}**")
 
     if tier == "Free":
-        st.warning("🔒 Անվճար պլան․ Իրական շտեմարանից ներբեռնումները և ավտոմատացված դոկինգը հասանելի են միայն Pro տարբերակում։")
+        st.warning("🔒 Անվճար պլան․ Իրական շտեմարանից ներբեռնումները և ավտոմատացված դոկինգը հասանելի են միայն Pro տարբերակում։ Բարելավեք ձեր պլանը կողային վահանակի միջոցով։")
     else:
-        st.success("⚡ Pro ռեժիմը ակտիվ է։")
+        st.success("⚡ Pro ռեժիմը լիարժեք ակտիվ է։")
         
         input_method = st.radio("Ընտրեք սպիտակուցի ստացման եղանակը՝", ["Ներբեռնել իրական սպիտակուց RCSB PDB բազայից (ըստ ID-ի)", "Վերբեռնել ֆայլ համակարգչից (PDB/SDF)"])
         
@@ -195,7 +246,7 @@ else:
 
         if protein_data and ligand_data:
             if st.button("🚀 Գործարկել AutoDock Vina դոկինգի հաշվարկը"):
-                with st.spinner("Կատարվում է դոկինգի սիմուլյացիա..."):
+                with st.spinner("Կատարվում է մոլեկուլային դոկինգի սիմուլյացիա..."):
                     import time
                     time.sleep(2.0)
                     affinity = "-11.4 kcal/mol" if "1CRN" in protein_name else "-9.8 kcal/mol"
@@ -209,7 +260,7 @@ else:
                     })
                     
                 st.success("Դոկինգն հաջողությամբ ավարտվեց!")
-                st.metric(label="Binding Affinity", value=affinity)
+                st.metric(label="Binding Affinity (Կապակցման էներգիա)", value=affinity)
                 
                 st.subheader("🔬 3D Molecular Complex Viewer")
                 result_viewer = py3Dmol.view(width=800, height=500)
@@ -222,6 +273,6 @@ else:
         
         if st.session_state.history:
             st.markdown("---")
-            st.subheader("📋 Ձեր հաշվարկների պատմությունը")
+            st.subheader("📋 Ձեր կատարված հաշվարկների պատմությունը")
             history_df = pd.DataFrame(st.session_state.history)
             st.dataframe(history_df, use_container_width=True)
