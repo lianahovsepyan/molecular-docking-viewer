@@ -68,9 +68,12 @@ TRANSLATIONS = {
         "plan_free": "Անվճար",
         "plan_pro": "Պրոֆեսիոնալ",
         "upgrade_title": "💎 Բարելավել մինչև Pro ($29/ամիս)",
-        "stripe_desc": "Վճարումն իրականացվում է <b>Stripe</b>-ի միջոցով (100% ապահով և անվտանգ)։ Ոչ մի քարտային տվյալ չի պահվում մեր սերվերում:",
-        "pay_btn": "🔒 Անցնել Stripe Ապահով Վճարմանը",
-        "pay_success": "Վճարումը հաջողությամբ հաստատվեց Stripe-ի միջոցով։ Pro պլանն ակտիվ է։",
+        "pay_method_label": "Ընտրեք վճարման եղանակը՝",
+        "stripe_desc": "Վճարումն իրականացվում է <b>Stripe</b>-ի միջոցով (Visa, Mastercard, Apple Pay):",
+        "arca_desc": "Վճարում հայկական բանկային քարտերով կամ դրամապանակներով (<b>ArCa, Idram, Telcell, Ameriabank</b>):",
+        "pay_stripe_btn": "🔒 Վճարել Stripe-ով ($29)",
+        "pay_arca_btn": "💳 Վճարել ArCa / Idram-ով (11,500 AMD)",
+        "pay_success": "Վճարումը հաջողությամբ հաստատվեց։ Pro պլանն ակտիվ է։",
         "login_error": "Սխալ էլ. հասցե կամ գաղտնաբառ:",
         "reg_success": "Գրանցումն հաջողվեց! Այժմ կարող եք մուտք գործել:",
         "reg_error": "Այս էլ. հասցեն արդեն գրանցված է:",
@@ -107,9 +110,12 @@ TRANSLATIONS = {
         "plan_free": "Free",
         "plan_pro": "Pro",
         "upgrade_title": "💎 Upgrade to Pro ($29/mo)",
-        "stripe_desc": "Payments are processed securely via <b>Stripe</b>. No card data is stored on our servers.",
-        "pay_btn": "🔒 Proceed to Stripe Secure Checkout",
-        "pay_success": "Payment successfully confirmed via Stripe! Pro plan is active.",
+        "pay_method_label": "Choose payment method:",
+        "stripe_desc": "Processed securely via <b>Stripe</b> (Visa, Mastercard, Apple Pay).",
+        "arca_desc": "Processed via local Armenian payment systems (<b>ArCa, Idram, Telcell, Ameriabank</b>).",
+        "pay_stripe_btn": "🔒 Pay with Stripe ($29)",
+        "pay_arca_btn": "💳 Pay with ArCa / Idram (11,500 AMD)",
+        "pay_success": "Payment successfully confirmed! Pro plan is active.",
         "login_error": "Invalid email or password.",
         "reg_success": "Registration successful! You can now log in.",
         "reg_error": "This email is already registered.",
@@ -146,9 +152,12 @@ TRANSLATIONS = {
         "plan_free": "Бесплатный",
         "plan_pro": "Профессиональный",
         "upgrade_title": "💎 Перейти на Pro ($29/мес)",
-        "stripe_desc": "Платежи обрабатываются через <b>Stripe</b> (100% безопасно). Данные карт не сохраняются на сервере.",
-        "pay_btn": "🔒 Перейти к безопасной оплате Stripe",
-        "pay_success": "Платеж успешно подтвержден через Stripe! Pro план активен.",
+        "pay_method_label": "Выберите способ оплаты:",
+        "stripe_desc": "Оплата через <b>Stripe</b> (Visa, Mastercard, Apple Pay).",
+        "arca_desc": "Оплата через армянские платежные системы (<b>ArCa, Idram, Telcell, Ameriabank</b>).",
+        "pay_stripe_btn": "🔒 Оплатить через Stripe ($29)",
+        "pay_arca_btn": "💳 Оплатить через ArCa / Idram (11,500 AMD)",
+        "pay_success": "Платеж успешно подтвержден! Pro план активен.",
         "login_error": "Неверный email или пароль.",
         "reg_success": "Регистрация успешна! Теперь вы можете войти.",
         "reg_error": "Этот email уже зарегистрирован.",
@@ -289,21 +298,40 @@ else:
         st.sidebar.markdown("---")
         st.sidebar.subheader(t["upgrade_title"])
         
-        st.sidebar.markdown(f'''
-            <div class="payment-box">
-                <p style="font-size: 13px; color: #94A3B8; margin-bottom: 15px;">
-                    {t["stripe_desc"]}
-                </p>
-            </div>
-        ''', unsafe_allow_html=True)
+        pay_gateway = st.sidebar.radio(t["pay_method_label"], ["Stripe (International)", "ArCa / Idram (Armenia)"])
         
-        if st.sidebar.button(t["pay_btn"]):
-            with st.spinner("Connecting to Stripe Secure Gateway..."):
-                time.sleep(2)
-                update_user_tier(st.session_state.email, "Pro")
-                st.session_state.tier = "Pro"
-            st.success(t["pay_success"])
-            st.rerun()
+        if pay_gateway == "Stripe (International)":
+            st.sidebar.markdown(f'''
+                <div class="payment-box">
+                    <p style="font-size: 13px; color: #94A3B8; margin-bottom: 5px;">
+                        {t["stripe_desc"]}
+                    </p>
+                </div>
+            ''', unsafe_allow_html=True)
+            
+            if st.sidebar.button(t["pay_stripe_btn"]):
+                with st.spinner("Connecting to Stripe Secure Gateway..."):
+                    time.sleep(2)
+                    update_user_tier(st.session_state.email, "Pro")
+                    st.session_state.tier = "Pro"
+                st.success(t["pay_success"])
+                st.rerun()
+        else:
+            st.sidebar.markdown(f'''
+                <div class="payment-box" style="border-color: #0ea5e9;">
+                    <p style="font-size: 13px; color: #94A3B8; margin-bottom: 5px;">
+                        {t["arca_desc"]}
+                    </p>
+                </div>
+            ''', unsafe_allow_html=True)
+            
+            if st.sidebar.button(t["pay_arca_btn"]):
+                with st.spinner("Connecting to Armenian Payment Gateway (ArCa/Idram)..."):
+                    time.sleep(2)
+                    update_user_tier(st.session_state.email, "Pro")
+                    st.session_state.tier = "Pro"
+                st.success(t["pay_success"])
+                st.rerun()
 
 # -- Main Application Interface --
 st.markdown(f"""
@@ -406,7 +434,6 @@ else:
                 result_viewer.addModel(ligand_data, "sdf")
                 result_viewer.setStyle({'stick': {'colorscheme': 'greenCarbon', 'radius': 0.3}})
                 result_viewer.zoomTo()
-                # Added unique key to prevent React removeChild DOM mismatch issues
                 components.html(result_viewer._make_html(), height=530, scrolling=False, key=f"viewer_{time.time()}")
         
         if st.session_state.history:
