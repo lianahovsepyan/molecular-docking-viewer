@@ -47,6 +47,7 @@ st.markdown("""
         border-radius: 10px;
         border: 1px solid #334155;
         margin-bottom: 15px;
+        text-align: center;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -67,16 +68,9 @@ TRANSLATIONS = {
         "plan_free": "Անվճար",
         "plan_pro": "Պրոֆեսիոնալ",
         "upgrade_title": "💎 Բարելավել մինչև Pro ($29/ամիս)",
-        "pay_method": "Ընտրեք վճարման համակարգը՝",
-        "stripe_opt": "💳 Միջազգային (Stripe)",
-        "armenian_opt": "🇦🇲 Հայկական (ArCa / Idram)",
-        "card_num": "Քարտի համարը (Visa/Mastercard)",
-        "expiry": "Ժամկետ (MM/YY)",
-        "cvc": "CVC/CVV",
-        "local_provider": "Վճարման եղանակ",
-        "local_num": "Քարտի համար / Հեռախոսահամար",
-        "pay_btn": "✅ Հաստատել և Վճարել",
-        "pay_success": "Վճարումը հաստատվեց! Pro պլանն ակտիվ է։",
+        "stripe_desc": "Վճարումն իրականացվում է <b>Stripe</b>-ի միջոցով (100% ապահով և անվտանգ)։ Ոչ մի քարտային տվյալ չի պահվում մեր սերվերում:",
+        "pay_btn": "🔒 Անցնել Stripe Ապահով Վճարմանը",
+        "pay_success": "Վճարումը հաջողությամբ հաստատվեց Stripe-ի միջոցով։ Pro պլանն ակտիվ է։",
         "login_error": "Սխալ էլ. հասցե կամ գաղտնաբառ:",
         "reg_success": "Գրանցումն հաջողվեց! Այժմ կարող եք մուտք գործել:",
         "reg_error": "Այս էլ. հասցեն արդեն գրանցված է:",
@@ -113,16 +107,9 @@ TRANSLATIONS = {
         "plan_free": "Free",
         "plan_pro": "Pro",
         "upgrade_title": "💎 Upgrade to Pro ($29/mo)",
-        "pay_method": "Select payment system:",
-        "stripe_opt": "💳 International (Stripe)",
-        "armenian_opt": "🇦🇲 Armenian (ArCa / Idram)",
-        "card_num": "Card Number (Visa/Mastercard)",
-        "expiry": "Expiry (MM/YY)",
-        "cvc": "CVC/CVV",
-        "local_provider": "Payment Method",
-        "local_num": "Card Number / Phone Number",
-        "pay_btn": "✅ Confirm and Pay",
-        "pay_success": "Payment confirmed! Pro plan is active.",
+        "stripe_desc": "Payments are processed securely via <b>Stripe</b>. No card data is stored on our servers.",
+        "pay_btn": "🔒 Proceed to Stripe Secure Checkout",
+        "pay_success": "Payment successfully confirmed via Stripe! Pro plan is active.",
         "login_error": "Invalid email or password.",
         "reg_success": "Registration successful! You can now log in.",
         "reg_error": "This email is already registered.",
@@ -158,17 +145,10 @@ TRANSLATIONS = {
         "logout": "Выйти (Log out)",
         "plan_free": "Бесплатный",
         "plan_pro": "Профессиональный",
-        "upgrade_title": "💎 Перейте на Pro ($29/мес)",
-        "pay_method": "Выберите платежную систему:",
-        "stripe_opt": "💳 Международная (Stripe)",
-        "armenian_opt": "🇦🇲 Армянская (ArCa / Idram)",
-        "card_num": "Номер карты (Visa/Mastercard)",
-        "expiry": "Срок (MM/YY)",
-        "cvc": "CVC/CVV",
-        "local_provider": "Способ оплаты",
-        "local_num": "Номер карты / Номер телефона",
-        "pay_btn": "✅ Подтвердить и оплатить",
-        "pay_success": "Платеж подтвержден! Pro план активен.",
+        "upgrade_title": "💎 Перейти на Pro ($29/мес)",
+        "stripe_desc": "Платежи обрабатываются через <b>Stripe</b> (100% безопасно). Данные карт не сохраняются на сервере.",
+        "pay_btn": "🔒 Перейти к безопасной оплате Stripe",
+        "pay_success": "Платеж успешно подтвержден через Stripe! Pro план активен.",
         "login_error": "Неверный email или пароль.",
         "reg_success": "Регистрация успешна! Теперь вы можете войти.",
         "reg_error": "Этот email уже зарегистрирован.",
@@ -309,27 +289,20 @@ else:
         st.sidebar.markdown("---")
         st.sidebar.subheader(t["upgrade_title"])
         
-        # Embedded Payment System UI
-        st.sidebar.markdown('<div class="payment-box">', unsafe_allow_html=True)
-        payment_method = st.sidebar.radio(t["pay_method"], 
-                                          [t["stripe_opt"], t["armenian_opt"]])
-        
-        if payment_method == t["stripe_opt"]:
-            st.sidebar.text_input(t["card_num"], placeholder="0000 0000 0000 0000", max_chars=19)
-            col1, col2 = st.sidebar.columns(2)
-            with col1:
-                st.text_input(t["expiry"], placeholder="12/26", max_chars=5)
-            with col2:
-                st.text_input(t["cvc"], placeholder="123", type="password", max_chars=3)
-        else:
-            st.sidebar.selectbox(t["local_provider"], ["ArCa Քարտ / Card", "Ամերիաբանկ vPOS", "Idram Դրամապանակ", "Telcell Wallet"])
-            st.sidebar.text_input(t["local_num"], placeholder="... ... ...")
-        
-        st.sidebar.markdown('</div>', unsafe_allow_html=True)
+        # Stripe Secure Checkout Integration Box
+        st.sidebar.markdown(f'''
+            <div class="payment-box">
+                <p style="font-size: 13px; color: #94A3B8; margin-bottom: 15px;">
+                    {t["stripe_desc"]}
+                </p>
+            </div>
+        ''', unsafe_allow_html=True)
         
         if st.sidebar.button(t["pay_btn"]):
-            with st.spinner("..."):
+            with st.spinner("Connecting to Stripe Secure Gateway..."):
                 time.sleep(2)
+                # In production, this redirects to Stripe Checkout Session URL. 
+                # Here we simulate successful Stripe webhook callback activating Pro tier.
                 update_user_tier(st.session_state.email, "Pro")
                 st.session_state.tier = "Pro"
             st.success(t["pay_success"])
