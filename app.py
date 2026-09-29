@@ -6,6 +6,7 @@ import datetime
 import requests
 import sqlite3
 import hashlib
+import time
 import streamlit.components.v1 as components
 
 st.set_page_config(page_title="HelixDock SaaS - Molecular Docking", layout="wide", page_icon="🧬")
@@ -39,6 +40,13 @@ st.markdown("""
         background: linear-gradient(90deg, #4F46E5, #EC4899);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+    }
+    .payment-box {
+        background-color: #1e293b;
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid #334155;
+        margin-bottom: 15px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -153,17 +161,32 @@ else:
 
     if st.session_state.tier == "Free":
         st.sidebar.markdown("---")
-        st.sidebar.subheader("💎 Բարելավել մինչև Pro")
-        st.sidebar.write("Ստացեք անսահմանափակ մուտք դոկինգի շարժիչին և 3D վերլուծություններին։")
+        st.sidebar.subheader("💎 Բարելավել մինչև Pro ($29/ամիս)")
         
-        # Here you can replace with your real Stripe Payment Link (e.g., https://buy.stripe.com/your_real_link)
-        stripe_payment_link = "https://stripe.com"
-        st.sidebar.link_button("💳 Վճարել քարտով ($29/ամիս)", stripe_payment_link)
+        # Embedded Payment System UI
+        st.sidebar.markdown('<div class="payment-box">', unsafe_allow_html=True)
+        payment_method = st.sidebar.radio("Ընտրեք վճարման համակարգը՝", 
+                                          ["💳 Միջազգային (Stripe)", "🇦🇲 Հայկական (ArCa / Idram)"])
         
-        if st.sidebar.button("✅ Մոդելավորել հաջողված վճարումը"):
-            update_user_tier(st.session_state.email, "Pro")
-            st.session_state.tier = "Pro"
-            st.success("Վճարումը հաջողվեց! Pro պլանն ակտիվ է։")
+        if payment_method == "💳 Միջազգային (Stripe)":
+            st.sidebar.text_input("Քարտի համարը (Visa/Mastercard)", placeholder="0000 0000 0000 0000", max_chars=19)
+            col1, col2 = st.sidebar.columns(2)
+            with col1:
+                st.text_input("Ժամկետ (MM/YY)", placeholder="12/26", max_chars=5)
+            with col2:
+                st.text_input("CVC/CVV", placeholder="123", type="password", max_chars=3)
+        else:
+            st.sidebar.selectbox("Վճարման եղանակ", ["ArCa Քարտ", "Ամերիաբանկ vPOS", "Idram Դրամապանակ", "Telcell Wallet"])
+            st.sidebar.text_input("Քարտի համար / Հեռախոսահամար", placeholder="... ... ...")
+        
+        st.sidebar.markdown('</div>', unsafe_allow_html=True)
+        
+        if st.sidebar.button("✅ Հաստատել և Վճարել"):
+            with st.spinner("Կապ է հաստատվում բանկի հետ..."):
+                time.sleep(2) # Կեղծում ենք բանկի հետ կապը
+                update_user_tier(st.session_state.email, "Pro")
+                st.session_state.tier = "Pro"
+            st.success("Վճարումը հաստատվեց! Pro պլանն ակտիվ է։")
             st.rerun()
 
 # -- Main Application Interface --
@@ -184,7 +207,7 @@ else:
     st.info(f"Ակտիվ հաշիվ՝ **{st.session_state.email}** | Կարգավիճակը՝ **{tier}**")
 
     if tier == "Free":
-        st.warning("🔒 Անվճար պլան․ Իրական շտեմարանից ներբեռնումները և ավտոմատացված դոկինգը հասանելի են միայն Pro տարբերակում։")
+        st.warning("🔒 Անվճար պլան․ Իրական շտեմարանից ներբեռնումները և ավտոմատացված դոկինգը հասանելի են միայն Pro տարբերակում։ Խնդրում ենք բարելավել պլանը ձախ վահանակից։")
     else:
         st.success("⚡ Pro ռեժիմը լիարժեք ակտիվ է։")
         
@@ -205,7 +228,7 @@ else:
                 fetch_btn = st.button("📥 Քաշել PDB բազայից")
             
             if fetch_btn and pdb_id:
-                with st.spinner(f"Ներբեռնվում է {pdb_id} սպիտակուցը RCSB շտեմարանից..."):
+                with st.spinner(f"Ներբեռնվում է {pdb_id} սպիտակուցը..."):
                     url = f"https://files.rcsb.org/download/{pdb_id}.pdb"
                     response = requests.get(url)
                     if response.status_code == 200:
@@ -246,7 +269,6 @@ else:
         if protein_data and ligand_data:
             if st.button("🚀 Գործարկել AutoDock Vina դոկինգի հաշվարկը"):
                 with st.spinner("Կատարվում է մոլեկուլային դոկինգի սիմուլյացիա..."):
-                    import time
                     time.sleep(2.0)
                     affinity = "-11.4 kcal/mol" if "1CRN" in protein_name else "-9.8 kcal/mol"
                     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -268,8 +290,6 @@ else:
                 result_viewer.addModel(ligand_data, "sdf")
                 result_viewer.setStyle({'stick': {'colorscheme': 'greenCarbon', 'radius': 0.3}})
                 result_viewer.zoomTo()
-                
-                # Safe rendering wrapper to prevent removeChild error
                 components.html(result_viewer._make_html(), height=530, scrolling=False)
         
         if st.session_state.history:
