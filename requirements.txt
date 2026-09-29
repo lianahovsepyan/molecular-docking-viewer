@@ -1,3 +1,4 @@
 streamlit
-py3Dmol
 pandas
+py3Dmol
+requests
