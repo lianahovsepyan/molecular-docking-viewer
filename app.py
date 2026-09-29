@@ -3,6 +3,7 @@ import pandas as pd
 import py3Dmol
 import os
 import datetime
+import streamlit.components.v1 as components
 
 st.set_page_config(page_title="Molecular Docking SaaS", layout="wide")
 
@@ -73,7 +74,6 @@ if not st.session_state.logged_in:
         viewer.zoomTo()
         return viewer._make_html()
     
-    import streamlit.components.v1 as components
     components.html(show_demo_viewer(), height=430)
 
 else:
@@ -118,7 +118,6 @@ else:
                     affinity = "-9.2 kcal/mol"
                     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     
-                    # Save to session history
                     st.session_state.history.append({
                         "Time": timestamp,
                         "Protein": uploaded_protein.name,
@@ -138,7 +137,6 @@ else:
                 result_viewer.zoomTo()
                 components.html(result_viewer._make_html(), height=430)
         
-        # Display User Calculation History
         if st.session_state.history:
             st.markdown("---")
             st.subheader("📋 Your Docking Simulation History")
