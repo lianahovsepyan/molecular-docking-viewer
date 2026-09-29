@@ -7,9 +7,14 @@ import requests
 import sqlite3
 import hashlib
 import time
+import stripe
 import streamlit.components.v1 as components
 
 st.set_page_config(page_title="HelixDock SaaS - Molecular Docking", layout="wide", page_icon="🧬")
+
+# -- Initialize Stripe API Key if available in secrets --
+if "stripe" in st.secrets:
+    stripe.api_key = st.secrets["stripe"]["secret_key"]
 
 # -- Custom CSS for Pro SaaS Styling --
 st.markdown("""
@@ -68,11 +73,8 @@ TRANSLATIONS = {
         "plan_free": "Անվճար",
         "plan_pro": "Պրոֆեսիոնալ",
         "upgrade_title": "💎 Բարելավել մինչև Pro ($29/ամիս)",
-        "pay_method_label": "Ընտրեք վճարման եղանակը՝",
-        "stripe_desc": "Վճարումն իրականացվում է <b>Stripe</b>-ի միջոցով (Visa, Mastercard, Apple Pay):",
-        "arca_desc": "Վճարում հայկական բանկային քարտերով կամ դրամապանակներով (<b>ArCa, Idram, Telcell, Ameriabank</b>):",
+        "stripe_desc": "Վճարումն իրականացվում է <b>Stripe</b>-ի պաշտոնական ապահով հարթակով։",
         "pay_stripe_btn": "🔒 Վճարել Stripe-ով ($29)",
-        "pay_arca_btn": "💳 Վճարել ArCa / Idram-ով (11,500 AMD)",
         "pay_success": "Վճարումը հաջողությամբ հաստատվեց։ Pro պլանն ակտիվ է։",
         "login_error": "Սխալ էլ. հասցե կամ գաղտնաբառ:",
         "reg_success": "Գրանցումն հաջողվեց! Այժմ կարող եք մուտք գործել:",
@@ -110,11 +112,8 @@ TRANSLATIONS = {
         "plan_free": "Free",
         "plan_pro": "Pro",
         "upgrade_title": "💎 Upgrade to Pro ($29/mo)",
-        "pay_method_label": "Choose payment method:",
-        "stripe_desc": "Processed securely via <b>Stripe</b> (Visa, Mastercard, Apple Pay).",
-        "arca_desc": "Processed via local Armenian payment systems (<b>ArCa, Idram, Telcell, Ameriabank</b>).",
+        "stripe_desc": "Payments are securely processed via official <b>Stripe</b> Checkout.",
         "pay_stripe_btn": "🔒 Pay with Stripe ($29)",
-        "pay_arca_btn": "💳 Pay with ArCa / Idram (11,500 AMD)",
         "pay_success": "Payment successfully confirmed! Pro plan is active.",
         "login_error": "Invalid email or password.",
         "reg_success": "Registration successful! You can now log in.",
@@ -152,11 +151,8 @@ TRANSLATIONS = {
         "plan_free": "Бесплатный",
         "plan_pro": "Профессиональный",
         "upgrade_title": "💎 Перейти на Pro ($29/мес)",
-        "pay_method_label": "Выберите способ оплаты:",
-        "stripe_desc": "Оплата через <b>Stripe</b> (Visa, Mastercard, Apple Pay).",
-        "arca_desc": "Оплата через армянские платежные системы (<b>ArCa, Idram, Telcell, Ameriabank</b>).",
+        "stripe_desc": "Оплата через официальную защищенную систему <b>Stripe</b>.",
         "pay_stripe_btn": "🔒 Оплатить через Stripe ($29)",
-        "pay_arca_btn": "💳 Оплатить через ArCa / Idram (11,500 AMD)",
         "pay_success": "Платеж успешно подтвержден! Pro план активен.",
         "login_error": "Неверный email или пароль.",
         "reg_success": "Регистрация успешна! Теперь вы можете войти.",
@@ -181,6 +177,10 @@ TRANSLATIONS = {
         "history_title": "📋 История ваших расчетов"
     }
 }
+
+# -- Update requirements.txt to include stripe --
+with open("requirements.txt", "w") as f:
+    f.write("streamlit\npandas\npy3Dmol\nrequests\nstripe\n")
 
 # -- Database Setup --
 def init_db():
@@ -298,40 +298,45 @@ else:
         st.sidebar.markdown("---")
         st.sidebar.subheader(t["upgrade_title"])
         
-        pay_gateway = st.sidebar.radio(t["pay_method_label"], ["Stripe (International)", "ArCa / Idram (Armenia)"])
+        st.sidebar.markdown(f'''
+            <div class="payment-box">
+                <p style="font-size: 13px; color: #94A3B8; margin-bottom: 5px;">
+                    {t["stripe_desc"]}
+                </p>
+            </div>
+        ''', unsafe_allow_html=True)
         
-        if pay_gateway == "Stripe (International)":
-            st.sidebar.markdown(f'''
-                <div class="payment-box">
-                    <p style="font-size: 13px; color: #94A3B8; margin-bottom: 5px;">
-                        {t["stripe_desc"]}
-                    </p>
-                </div>
-            ''', unsafe_allow_html=True)
-            
-            if st.sidebar.button(t["pay_stripe_btn"]):
-                with st.spinner("Connecting to Stripe Secure Gateway..."):
-                    time.sleep(2)
-                    update_user_tier(st.session_state.email, "Pro")
-                    st.session_state.tier = "Pro"
-                st.success(t["pay_success"])
-                st.rerun()
-        else:
-            st.sidebar.markdown(f'''
-                <div class="payment-box" style="border-color: #0ea5e9;">
-                    <p style="font-size: 13px; color: #94A3B8; margin-bottom: 5px;">
-                        {t["arca_desc"]}
-                    </p>
-                </div>
-            ''', unsafe_allow_html=True)
-            
-            if st.sidebar.button(t["pay_arca_btn"]):
-                with st.spinner("Connecting to Armenian Payment Gateway (ArCa/Idram)..."):
-                    time.sleep(2)
-                    update_user_tier(st.session_state.email, "Pro")
-                    st.session_state.tier = "Pro"
-                st.success(t["pay_success"])
-                st.rerun()
+        if st.sidebar.button(t["pay_stripe_btn"]):
+            try:
+                # If Stripe API key is configured, create real Stripe Checkout Session
+                if "stripe" in st.secrets and st.secrets["stripe"]["secret_key"]:
+                    checkout_session = stripe.checkout.Session.create(
+                        payment_method_types=['card'],
+                        line_items=[{
+                            'price_data': {
+                                'currency': 'usd',
+                                'product_data': {'name': 'HelixDock Pro Plan'},
+                                'unit_amount': 2900,
+                            },
+                            'quantity': 1,
+                        }],
+                        mode='payment',
+                        success_url='https://share.streamlit.io/', # or your app url
+                        cancel_url='https://share.streamlit.io/',
+                        customer_email=st.session_state.email,
+                    )
+                    st.sidebar.markdown(f'<meta http-equiv="refresh" content="0;url={checkout_session.url}">', unsafe_allow_html=True)
+                    st.sidebar.markdown(f"[🔗 Open Stripe Checkout]({checkout_session.url})" )
+                else:
+                    # Fallback simulation if stripe key isn't added yet
+                    with st.spinner("Connecting to Stripe Checkout..."):
+                        time.sleep(1.5)
+                        update_user_tier(st.session_state.email, "Pro")
+                        st.session_state.tier = "Pro"
+                    st.success(t["pay_success"])
+                    st.rerun()
+            except Exception as e:
+                st.sidebar.error(f"Stripe Error: {e}")
 
 # -- Main Application Interface --
 st.markdown(f"""
