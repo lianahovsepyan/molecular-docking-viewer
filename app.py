@@ -353,7 +353,7 @@ else:
                 </p>
                 <ol style="padding-left: 15px; color: #CBD5E1; font-size: 12px; margin-bottom: 8px;">
                     <li>Բացեք ձեր կրիպտո դրամապանակը (Binance, Trust Wallet, և այլն):</li>
-                    <li>Ուղարկեք ακριβώς <b>29 USDT</b> (ցանցը՝ <b>TRC20</b>) հետևյալ հասցեին.</li>
+                    <li>Ուղարկեք <b>29 USDT</b> (ցանցը՝ <b>TRC20</b>) հետևյալ հասցեին.</li>
                 </ol>
                 <div class="crypto-address">
                     TKRGWRC2PWKxAgsmxHdaH3wfDvJs1uXNEE
@@ -362,7 +362,7 @@ else:
                     <a href="https://tronscan.org/#/address/TKRGWRC2PWKxAgsmxHdaH3wfDvJs1uXNEE" target="_blank" style="color: #38BDF8; font-size: 11px; text-decoration: none;">🔗 Ստուգել հասցեն TRONScan-ում</a>
                 </p>
                 <p style="color: #94A3B8; font-size: 11px; margin-bottom: 0;">
-                    💡 <b>Կարևոր է։</b> Փոխանցումն անելուց հետո ձեր գրանցված էլ. հասցեով գրեք մեզ, որպեսզի անմիջապես ակտիվացնենք ձեր Pro պլանը։
+                    💡 <b>Կարևոր է։</b> Փոխանցումն անելուց հետո գրեք մեզ այս էլ. հասցեին՝ <a href="mailto:lianahovsepyan65@gmail.com" style="color: #38BDF8;">lianahovsepyan65@gmail.com</a> (նշելով ձեր գրանցված Email-ը), որպեսզի անմիջապես ակտիվացնենք ձեր Pro պլանը։
                 </p>
             </div>
         ''', unsafe_allow_html=True)
