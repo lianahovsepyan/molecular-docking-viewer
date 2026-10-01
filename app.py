@@ -233,7 +233,6 @@ def init_db():
     if "is_verified" not in columns:
         c.execute("ALTER TABLE users ADD COLUMN is_verified INTEGER DEFAULT 1")
         
-    # Automatically ensure admin account always exists and is Pro
     c.execute("SELECT email FROM users WHERE email = ?", (ADMIN_EMAIL,))
     if not c.fetchone():
         c.execute("INSERT INTO users (email, password, tier, is_verified) VALUES (?, ?, 'Pro', 1)", 
@@ -338,7 +337,6 @@ if not st.session_state.logged_in:
         login_email = st.sidebar.text_input(t["email"], key="l_email")
         login_pass = st.sidebar.text_input(t["password"], type="password", key="l_pass")
         
-        # Helper note for admin login if needed
         if login_email.strip().lower() == ADMIN_EMAIL.lower():
             st.sidebar.info("💡 Admin note: If you haven't set a custom password yet, you can use **Admin123!**")
         
@@ -447,14 +445,6 @@ else:
 
 # -- Main Application Interface --
 st.markdown(f"""
-    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
-        <span style="font-size: 40px;">🧬</span>
-        <div>
-            <h1 style="margin: 0; font-size: 32px;">{t['title']}</h1>
-            <p style="margin: 0; color: #9CA3AF;">{t['subtitle']}</p>
-        </div>
-    </div>
-""", unsafe_style=True) if "unsafe_style" in globals() else st.markdown(f"""
     <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
         <span style="font-size: 40px;">🧬</span>
         <div>
