@@ -225,10 +225,11 @@ TRANSLATIONS = {
     }
 }
 
-# -- Database Setup --
+# -- Database Setup with Auto-Migration --
 def init_db():
     conn = sqlite3.connect("users.db")
     c = conn.cursor()
+    # Ստեղծում ենք աղյուսակը, եթե չկա
     c.execute('''
         CREATE TABLE IF NOT EXISTS users (
             email TEXT PRIMARY KEY,
@@ -238,6 +239,18 @@ def init_db():
             verify_code TEXT
         )
     ''')
+    
+    # Ստուգում և ավելացնում ենք բացակայող սյունակները հին բազաների համար
+    c.execute("PRAGMA table_info(users)")
+    columns = [column[1] for column in c.fetchall()]
+    
+    if "tier" not in columns:
+        c.execute("ALTER TABLE users ADD COLUMN tier TEXT DEFAULT 'Free'")
+    if "is_verified" not in columns:
+        c.execute("ALTER TABLE users ADD COLUMN is_verified INTEGER DEFAULT 1") # Հին օգտատերերի համար դարձնում ենք 1, որ միանան առանց խնդրի
+    if "verify_code" not in columns:
+        c.execute("ALTER TABLE users ADD COLUMN verify_code TEXT")
+        
     conn.commit()
     conn.close()
 
@@ -297,8 +310,8 @@ def verify_user(email, password):
     c.execute("SELECT password, tier, is_verified FROM users WHERE email = ?", (email,))
     row = c.fetchone()
     conn.close()
-    if row and row[0] == hash_password(password) and row[2] == 1:
-        return True, row[1]
+    if row and row[0] == hash_password(password) and (row[2] == 1 or row[2] is None):
+        return True, (row[1] if row[1] else "Free")
     return False, None
 
 def update_password(email, new_password):
