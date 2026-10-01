@@ -544,7 +544,7 @@ else:
                 result_viewer.addModel(ligand_data, "sdf")
                 result_viewer.setStyle({'stick': {'colorscheme': 'greenCarbon', 'radius': 0.3}})
                 result_viewer.zoomTo()
-                components.html(result_viewer._make_html(), height=530, scrolling=False, key=f"viewer_{time.time()}")
+                components.html(result_viewer._make_html(), height=530, scrolling=False)
         
         if st.session_state.history:
             st.markdown("---")
