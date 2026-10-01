@@ -68,7 +68,6 @@ TRANSLATIONS = {
         "plan_free": "Անվճար",
         "plan_pro": "Պրոֆեսիոնալ",
         "upgrade_title": "💎 Բարելավել մինչև Pro ($29)",
-        "pay_success": "Pro պլանն ակտիվացվեց։",
         "login_error": "Սխալ էլ. հասցե կամ գաղտնաբառ:",
         "reg_success": "Գրանցումն հաջողվեց! Այժմ կարող եք մուտք գործել:",
         "reg_error": "Այս էլ. հասցեն արդեն գրանցված է:",
@@ -105,7 +104,6 @@ TRANSLATIONS = {
         "plan_free": "Free",
         "plan_pro": "Pro",
         "upgrade_title": "💎 Upgrade to Pro ($29)",
-        "pay_success": "Pro plan activated.",
         "login_error": "Invalid email or password.",
         "reg_success": "Registration successful! You can now log in.",
         "reg_error": "This email is already registered.",
@@ -142,7 +140,6 @@ TRANSLATIONS = {
         "plan_free": "Бесплатный",
         "plan_pro": "Профессиональный",
         "upgrade_title": "💎 Перейти на Pro ($29)",
-        "pay_success": "Pro план активирован.",
         "login_error": "Неверный email или пароль.",
         "reg_success": "Регистрация успешна! Теперь вы можете войти.",
         "reg_error": "Этот email уже зарегистрирован.",
@@ -303,13 +300,6 @@ else:
                 </p>
             </div>
         ''', unsafe_allow_html=True)
-        
-        # Test activation button for convenience
-        if st.sidebar.button("⚡ Ակտիվացնել Pro (Test Mode)"):
-            update_user_tier(st.session_state.email, "Pro")
-            st.session_state.tier = "Pro"
-            st.success(t["pay_success"])
-            st.rerun()
 
 # -- Main Application Interface --
 st.markdown(f"""
