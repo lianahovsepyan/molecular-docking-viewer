@@ -6,7 +6,8 @@ import datetime
 import requests
 import sqlite3
 import hashlib
-import time
+import re
+import random
 import streamlit.components.v1 as components
 
 st.set_page_config(page_title="HelixDock SaaS - Molecular Docking", layout="wide", page_icon="🧬")
@@ -61,6 +62,14 @@ st.markdown("""
         text-align: center;
         border: 1px dashed #38BDF8;
     }
+    .password-rules {
+        font-size: 11px;
+        color: #94A3B8;
+        background: #1e293b;
+        padding: 8px;
+        border-radius: 6px;
+        margin-bottom: 10px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -72,25 +81,31 @@ TRANSLATIONS = {
         "account": "Օգտատիրոջ հաշիվ",
         "login": "Մուտք",
         "signup": "Գրանցվել",
+        "verify": "Էլ. փոստի հաստատում",
         "forgot": "Մոռացել եմ գաղտնաբառը",
         "email": "Էլ. հասցե (Email)",
         "password": "Գաղտնաբառ",
         "password_confirm": "Կրկնեք գաղտնաբառը",
+        "verification_code": "Հաստատման կոդ (6 նիշ)",
         "new_password": "Նոր գաղտնաբառ",
         "login_btn": "Մուտք գործել",
-        "reg_btn": "Գրանցվել",
+        "reg_btn": "Գրանցվել և ուղարկել կոդը",
+        "verify_btn": "Հաստատել էլ. փոստը",
         "reset_btn": "Փոխել գաղտնաբառը",
         "logout": "Դուրս գալ (Log out)",
         "plan_free": "Անվճար",
         "plan_pro": "Պրոֆեսիոնալ",
         "upgrade_title": "💎 Բարելավել մինչև Pro ($29)",
-        "login_error": "Սխալ էլ. հասցե կամ գաղտնաբառ:",
-        "reg_success": "Գրանցումն հաջողվեց! Այժմ կարող եք մուտք գործել:",
+        "login_error": "Սխալ էլ. հասցե, գաղտնաբառ կամ հաշիվը հաստատված չէ:",
+        "reg_success": "Գրանցումն հաջողվեց! Ստուգեք ձեր էլ. փոստը և մուտագրեք հաստատման կոդը:",
         "reg_error": "Այս էլ. հասցեն արդեն գրանցված է կամ գաղտնաբառերը չեն համընկնում:",
         "pass_mismatch": "Գաղտնաբառերը չեն համընկնում:",
+        "pass_weak": "Գաղտնաբառը չի համապատասխանում անվտանգության պահանջներին (պետք է լինի նվազագույնը 8 նիշ, ներառի մեծատառ, փոքրատառ, թիվ և հատուկ նիշ):",
         "fill_all": "Լրացրեք բոլոր դաշտերը:",
         "user_not_found": "Այս էլ. հասցեով օգտատեր չի գտնվել:",
         "reset_success": "Գաղտնաբառը հաջողությամբ թարմացվեց!",
+        "verify_success": "Էլ. փոստը հաջողությամբ հաստատվեց! Այժմ կարող եք մուտք գործել:",
+        "verify_error": "Սխալ հաստատման կոդ:",
         "lock_msg": "🔒 Խնդրում ենք մուտք գործել կամ գրանցվել կողային վահանակից՝ հարթակից օգտվելու համար։",
         "free_lock": "🔒 Անվճար պլան․ Իրական շտեմարանից ներբեռնումները և ավտոմատացված դոկինգը հասանելի են միայն Pro տարբերակում։ Խնդրում ենք բարելավել պլանը ձախ վահանակից։",
         "pro_active": "⚡ Pro ռեժիմը լիարժեք ակտիվ է։",
@@ -115,25 +130,31 @@ TRANSLATIONS = {
         "account": "User Account",
         "login": "Login",
         "signup": "Sign Up",
+        "verify": "Email Verification",
         "forgot": "Forgot Password",
         "email": "Email Address",
         "password": "Password",
         "password_confirm": "Confirm Password",
+        "verification_code": "Verification Code (6 digits)",
         "new_password": "New Password",
         "login_btn": "Log In",
-        "reg_btn": "Register",
+        "reg_btn": "Register & Send Code",
+        "verify_btn": "Verify Email",
         "reset_btn": "Reset Password",
         "logout": "Log Out",
         "plan_free": "Free",
         "plan_pro": "Pro",
         "upgrade_title": "💎 Upgrade to Pro ($29)",
-        "login_error": "Invalid email or password.",
-        "reg_success": "Registration successful! You can now log in.",
+        "login_error": "Invalid email, password, or account not verified.",
+        "reg_success": "Registration successful! Check your email for the verification code.",
         "reg_error": "Email already registered or passwords do not match.",
         "pass_mismatch": "Passwords do not match.",
+        "pass_weak": "Password does not meet security requirements (min 8 chars, uppercase, lowercase, number, special char).",
         "fill_all": "Please fill in all fields.",
         "user_not_found": "User with this email not found.",
         "reset_success": "Password successfully updated!",
+        "verify_success": "Email successfully verified! You can now log in.",
+        "verify_error": "Invalid verification code.",
         "lock_msg": "🔒 Please log in or sign up from the sidebar to use the platform.",
         "free_lock": "🔒 Free Tier: Downloading real proteins and automated docking are available in Pro version only. Please upgrade from the left panel.",
         "pro_active": "⚡ Pro mode is fully active.",
@@ -158,25 +179,31 @@ TRANSLATIONS = {
         "account": "Аккаунт пользователя",
         "login": "Вход",
         "signup": "Регистрация",
+        "verify": "Подтверждение email",
         "forgot": "Забыли пароль",
         "email": "Эл. почта",
         "password": "Пароль",
         "password_confirm": "Подтвердите пароль",
+        "verification_code": "Код подтверждения (6 цифр)",
         "new_password": "Новый пароль",
         "login_btn": "Войти",
-        "reg_btn": "Зарегистрироваться",
+        "reg_btn": "Зарегистрироваться и отправить код",
+        "verify_btn": "Подтвердить email",
         "reset_btn": "Сбросить пароль",
         "logout": "Выйти (Log out)",
         "plan_free": "Бесплатный",
         "plan_pro": "Профессиональный",
         "upgrade_title": "💎 Перейти на Pro ($29)",
-        "login_error": "Неверный email или пароль.",
-        "reg_success": "Регистрация успешна! Теперь вы можете войти.",
+        "login_error": "Неверный email, пароль или аккаунт не подтвержден.",
+        "reg_success": "Регистрация успешна! Проверьте почту для получения кода подтверждения.",
         "reg_error": "Email уже зарегистрирован или пароли не совпадают.",
         "pass_mismatch": "Пароли не совпадают.",
+        "pass_weak": "Пароль не отвечает требованиям безопасности (мин. 8 символов, заглавная, строчная, цифра, спец. символ).",
         "fill_all": "Заполните все поля.",
         "user_not_found": "Пользователь с таким email не найден.",
         "reset_success": "Пароль успешно обновлен!",
+        "verify_success": "Email успешно подтвержден! Теперь вы можете войти.",
+        "verify_error": "Неверный код подтверждения.",
         "lock_msg": "🔒 Пожалуйста, войдите или зарегистрируйтесь в боковой панели для использования платформы.",
         "free_lock": "🔒 Бесплатный тариф: Загрузка реальных белков и автоматический докинг доступны только в версии Pro. Пожалуйста, улучшите тариф слева.",
         "pro_active": "⚡ Режим Pro полностью активен.",
@@ -197,10 +224,6 @@ TRANSLATIONS = {
     }
 }
 
-# -- Update requirements.txt --
-with open("requirements.txt", "w") as f:
-    f.write("streamlit\npandas\py3Dmol\nrequests\n")
-
 # -- Database Setup --
 def init_db():
     conn = sqlite3.connect("users.db")
@@ -209,7 +232,9 @@ def init_db():
         CREATE TABLE IF NOT EXISTS users (
             email TEXT PRIMARY KEY,
             password TEXT,
-            tier TEXT
+            tier TEXT,
+            is_verified INTEGER DEFAULT 0,
+            verify_code TEXT
         )
     ''')
     conn.commit()
@@ -220,41 +245,76 @@ init_db()
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
+def validate_password_strength(password):
+    # Minimum 8 characters, at least one uppercase, one lowercase, one number, and one special character
+    if len(password) < 8:
+        return False
+    if not re.search(r"[A-Z]", password):
+        return False
+    if not re.search(r"[a-z]", password):
+        return False
+    if not re.search(r"[0-9]", password):
+        return False
+    if not re.search(r"[@$!%*?&]", password):
+        return False
+    return True
+
 def register_user(email, password):
+    if not validate_password_strength(password):
+        return False, "weak_pass"
+    
+    code = str(random.randint(100000, 999999))
     conn = sqlite3.connect("users.db")
     c = conn.cursor()
     try:
-        c.execute("INSERT INTO users (email, password, tier) VALUES (?, ?, ?)", 
-                  (email, hash_password(password), "Free"))
+        c.execute("INSERT INTO users (email, password, tier, is_verified, verify_code) VALUES (?, ?, ?, 0, ?)", 
+                  (email, hash_password(password), "Free", code))
         conn.commit()
         success = True
+        msg = code
     except sqlite3.IntegrityError:
         success = False
+        msg = "exists"
     conn.close()
-    return success
+    return success, msg
+
+def verify_user_code(email, code):
+    conn = sqlite3.connect("users.db")
+    c = conn.cursor()
+    c.execute("SELECT verify_code FROM users WHERE email = ?", (email,))
+    row = c.fetchone()
+    if row and row[0] == code:
+        c.execute("UPDATE users SET is_verified = 1 WHERE email = ?", (email,))
+        conn.commit()
+        conn.close()
+        return True
+    conn.close()
+    return False
 
 def verify_user(email, password):
     conn = sqlite3.connect("users.db")
     c = conn.cursor()
-    c.execute("SELECT password, tier FROM users WHERE email = ?", (email,))
+    c.execute("SELECT password, tier, is_verified FROM users WHERE email = ?", (email,))
     row = c.fetchone()
     conn.close()
-    if row and row[0] == hash_password(password):
+    if row and row[0] == hash_password(password) and row[2] == 1:
         return True, row[1]
     return False, None
 
 def update_password(email, new_password):
+    if not validate_password_strength(new_password):
+        return False, "weak_pass"
     conn = sqlite3.connect("users.db")
     c = conn.cursor()
     c.execute("SELECT email FROM users WHERE email = ?", (email,))
     row = c.fetchone()
     if not row:
         conn.close()
-        return False
+        return False, "not_found"
     c.execute("UPDATE users SET password = ? WHERE email = ?", (hash_password(new_password), email))
     conn.commit()
     conn.close()
-    return True
+    return True, "success"
 
 # -- Session State Setup --
 if "logged_in" not in st.session_state:
@@ -265,6 +325,8 @@ if "tier" not in st.session_state:
     st.session_state.tier = "Free"
 if "history" not in st.session_state:
     st.session_state.history = []
+if "pending_verify_email" not in st.session_state:
+    st.session_state.pending_verify_email = ""
 
 # -- Language Selector in Sidebar --
 selected_lang = st.sidebar.selectbox("🌐 Լեզու / Language / Язык", ["Հայերեն", "English", "Русский"])
@@ -279,7 +341,7 @@ st.sidebar.markdown("""
 """, unsafe_allow_html=True)
 st.sidebar.markdown("---")
 
-auth_mode = st.sidebar.radio(f"{t['account']}՝", [t["login"], t["signup"], t["forgot"]])
+auth_mode = st.sidebar.radio(f"{t['account']}՝", [t["login"], t["signup"], t["verify"], t["forgot"]])
 
 if not st.session_state.logged_in:
     if auth_mode == t["login"]:
@@ -299,6 +361,16 @@ if not st.session_state.logged_in:
                 
     elif auth_mode == t["signup"]:
         st.sidebar.subheader(t["signup"])
+        st.sidebar.markdown("""
+            <div class="password-rules">
+                <b>Գաղտնաբառի պահանջներ:</b><br>
+                • Նվազագույնը 8 նիշ<br>
+                • Առնվազն 1 մեծատառ (A-Z)<br>
+                • Առնվազն 1 փոքրատառ (a-z)<br>
+                • Առնվազն 1 թիվ (0-9)<br>
+                • Առնվազն 1 հատուկ նիշ (@$!%*?&)
+            </div>
+        """, unsafe_allow_html=True)
         reg_email = st.sidebar.text_input(t["email"], key="r_email")
         reg_pass = st.sidebar.text_input(t["password"], type="password", key="r_pass")
         reg_pass_conf = st.sidebar.text_input(t["password_confirm"], type="password", key="r_pass_conf")
@@ -306,17 +378,42 @@ if not st.session_state.logged_in:
         if st.sidebar.button(t["reg_btn"]):
             if reg_email and reg_pass and reg_pass_conf:
                 if reg_pass == reg_pass_conf:
-                    if register_user(reg_email, reg_pass):
+                    success, res_msg = register_user(reg_email, reg_pass)
+                    if success:
+                        st.session_state.pending_verify_email = reg_email
                         st.sidebar.success(t["reg_success"])
+                        st.sidebar.info(f"📧 [Test Mode] Ձեր հաստատման կոդն է՝ **{res_msg}**")
                     else:
-                        st.sidebar.error(t["reg_error"])
+                        if res_msg == "weak_pass":
+                            st.sidebar.error(t["pass_weak"])
+                        else:
+                            st.sidebar.error(t["reg_error"])
                 else:
                     st.sidebar.error(t["pass_mismatch"])
             else:
                 st.sidebar.warning(t["fill_all"])
                 
+    elif auth_mode == t["verify"]:
+        st.sidebar.subheader(t["verify"])
+        v_email = st.sidebar.text_input(t["email"], value=st.session_state.pending_verify_email, key="v_email")
+        v_code = st.sidebar.text_input(t["verification_code"], key="v_code")
+        
+        if st.sidebar.button(t["verify_btn"]):
+            if v_email and v_code:
+                if verify_user_code(v_email, v_code):
+                    st.sidebar.success(t["verify_success"])
+                else:
+                    st.sidebar.error(t["verify_error"])
+            else:
+                st.sidebar.warning(t["fill_all"])
+                
     else:  # Forgot Password
         st.sidebar.subheader(t["forgot"])
+        st.sidebar.markdown("""
+            <div class="password-rules">
+                Նոր գաղտնաբառը ևս պետք է համապատասխանի անվտանգության նշված պահանջներին։
+            </div>
+        """, unsafe_allow_html=True)
         f_email = st.sidebar.text_input(t["email"], key="f_email")
         f_pass = st.sidebar.text_input(t["new_password"], type="password", key="f_pass")
         f_pass_conf = st.sidebar.text_input(t["password_confirm"], type="password", key="f_pass_conf")
@@ -324,10 +421,14 @@ if not st.session_state.logged_in:
         if st.sidebar.button(t["reset_btn"]):
             if f_email and f_pass and f_pass_conf:
                 if f_pass == f_pass_conf:
-                    if update_password(f_email, f_pass):
+                    success, res_msg = update_password(f_email, f_pass)
+                    if success:
                         st.sidebar.success(t["reset_success"])
                     else:
-                        st.sidebar.error(t["user_not_found"])
+                        if res_msg == "weak_pass":
+                            st.sidebar.error(t["pass_weak"])
+                        else:
+                            st.sidebar.error(t["user_not_found"])
                 else:
                     st.sidebar.error(t["pass_mismatch"])
             else:
