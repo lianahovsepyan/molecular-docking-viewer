@@ -47,7 +47,19 @@ st.markdown("""
         border-radius: 10px;
         border: 1px solid #334155;
         margin-bottom: 15px;
+        text-align: left;
+    }
+    .crypto-address {
+        background: #0f172a; 
+        padding: 8px; 
+        border-radius: 6px; 
+        word-break: break-all; 
+        font-family: monospace; 
+        color: #38BDF8; 
+        font-size: 11px; 
+        margin: 8px 0;
         text-align: center;
+        border: 1px dashed #38BDF8;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -335,18 +347,22 @@ else:
         st.sidebar.subheader(t["upgrade_title"])
         
         st.sidebar.markdown(f'''
-            <div class="payment-box" style="text-align: left; font-size: 13px;">
-                <p style="color: #94A3B8; margin-bottom: 6px;">
-                    <b>USDT (TRC20) Վճարում:</b>
+            <div class="payment-box">
+                <p style="color: #94A3B8; margin-bottom: 6px; font-size: 13px;">
+                    <b>USDT (TRC20) Վճարման Հրահանգ:</b>
                 </p>
-                <p style="color: #CBD5E1; margin-bottom: 5px;">
-                    Ուղարկեք <b>$29 (USDT)</b> այս հասցեին՝
-                </p>
-                <div style="background: #0f172a; padding: 6px; border-radius: 6px; word-break: break-all; font-family: monospace; color: #38BDF8; font-size: 11px; margin-bottom: 6px;">
+                <ol style="padding-left: 15px; color: #CBD5E1; font-size: 12px; margin-bottom: 8px;">
+                    <li>Բացեք ձեր կրիպտո դրամապանակը (Binance, Trust Wallet, և այլն):</li>
+                    <li>Ուղարկեք ακριβώς <b>29 USDT</b> (ցանցը՝ <b>TRC20</b>) հետևյալ հասցեին.</li>
+                </ol>
+                <div class="crypto-address">
                     TKRGWRC2PWKxAgsmxHdaH3wfDvJs1uXNEE
                 </div>
-                <p style="color: #94A3B8; font-size: 10px; margin-bottom: 0;">
-                    Փոխանցելուց հետո գրեք ձեր <b>Email-ը</b> մեզ, և մենք ձեռքով կակտիվացնենք Pro պլանը։
+                <p style="text-align: center; margin-bottom: 8px;">
+                    <a href="https://tronscan.org/#/address/TKRGWRC2PWKxAgsmxHdaH3wfDvJs1uXNEE" target="_blank" style="color: #38BDF8; font-size: 11px; text-decoration: none;">🔗 Ստուգել հասցեն TRONScan-ում</a>
+                </p>
+                <p style="color: #94A3B8; font-size: 11px; margin-bottom: 0;">
+                    💡 <b>Կարևոր է։</b> Փոխանցումն անելուց հետո ձեր գրանցված էլ. հասցեով գրեք մեզ, որպեսզի անմիջապես ակտիվացնենք ձեր Pro պլանը։
                 </p>
             </div>
         ''', unsafe_allow_html=True)
