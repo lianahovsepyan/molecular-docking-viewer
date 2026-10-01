@@ -103,7 +103,7 @@ TRANSLATIONS = {
         "reset_success": "Գաղտնաբառը հաջողությամբ թարմացվեց!",
         "lock_msg": "🔒 Խնդրում ենք մուտք գործել կամ գրանցվել կողային վահանակից՝ հարթակից օգտվելու համար։",
         "free_lock": "🔒 Անվճար պլան․ Իրական շտեմարանից ներբեռնումները և ավտոմատացված դոկինգը հասանելի են միայն Pro տարբերակում։ Խնդրում ենք բարելավել պլանը ձախ վահանակից։",
-        "pro_active": "⚡ Pro ռեժիմը լիարժեք ակտիվ է։",
+        "pro_active": "⚡ Pro ռեժիմը լիարժեք ակտիվ է (Admin Mode)։",
         "input_choice": "Ընտրեք սպիտակուցի ստացման եղանակը՝",
         "opt1": "Ներբեռնել իրական սպիտակուց RCSB PDB բազայից (ըստ ID-ի)",
         "opt2": "Վերբեռնել ֆայլ համակարգչից (PDB/SDF)",
@@ -147,7 +147,7 @@ TRANSLATIONS = {
         "reset_success": "Password successfully updated!",
         "lock_msg": "🔒 Please log in or sign up from the sidebar to use the platform.",
         "free_lock": "🔒 Free Tier: Downloading real proteins and automated docking are available in Pro version only. Please upgrade from the left panel.",
-        "pro_active": "⚡ Pro mode is fully active.",
+        "pro_active": "⚡ Pro mode is fully active (Admin Mode).",
         "input_choice": "Choose protein input method:",
         "opt1": "Download real protein from RCSB PDB (by ID)",
         "opt2": "Upload file from computer (PDB/SDF)",
@@ -191,7 +191,7 @@ TRANSLATIONS = {
         "reset_success": "Пароль успешно обновлен!",
         "lock_msg": "🔒 Пожалуйста, войдите или зарегистрируйтесь в боковой панели для использования платформы.",
         "free_lock": "🔒 Бесплатный тариф: Загрузка реальных белков и автоматический докинг доступны только в версии Pro. Пожалуйста, улучшите тариф слева.",
-        "pro_active": "⚡ Режим Pro полностью активен.",
+        "pro_active": "⚡ Режим Pro полностью активен (Admin Mode).",
         "input_choice": "Выберите способ получения белка:",
         "opt1": "Скачать реальный белок из базы RCSB PDB (по ID)",
         "opt2": "Загрузить файл с компьютера (PDB/SDF)",
@@ -209,7 +209,10 @@ TRANSLATIONS = {
     }
 }
 
-# -- Database Setup with Auto-Migration --
+ADMIN_EMAIL = "lianahovsepyan65@gmail.com"
+ADMIN_DEFAULT_PASS = hashlib.sha256("Admin123!".encode()).hexdigest()
+
+# -- Database Setup with Auto-Migration & Auto-Admin --
 def init_db():
     conn = sqlite3.connect("users.db")
     c = conn.cursor()
@@ -230,6 +233,14 @@ def init_db():
     if "is_verified" not in columns:
         c.execute("ALTER TABLE users ADD COLUMN is_verified INTEGER DEFAULT 1")
         
+    # Automatically ensure admin account always exists and is Pro
+    c.execute("SELECT email FROM users WHERE email = ?", (ADMIN_EMAIL,))
+    if not c.fetchone():
+        c.execute("INSERT INTO users (email, password, tier, is_verified) VALUES (?, ?, 'Pro', 1)", 
+                  (ADMIN_EMAIL, ADMIN_DEFAULT_PASS))
+    else:
+        c.execute("UPDATE users SET tier = 'Pro' WHERE email = ?", (ADMIN_EMAIL,))
+    
     conn.commit()
     conn.close()
 
@@ -255,11 +266,13 @@ def register_user(email, password):
     if not validate_password_strength(password):
         return False, "weak_pass"
     
+    tier = "Pro" if email.strip().lower() == ADMIN_EMAIL.lower() else "Free"
+    
     conn = sqlite3.connect("users.db")
     c = conn.cursor()
     try:
         c.execute("INSERT INTO users (email, password, tier, is_verified) VALUES (?, ?, ?, 1)", 
-                  (email, hash_password(password), "Free"))
+                  (email, hash_password(password), tier))
         conn.commit()
         success = True
     except sqlite3.IntegrityError:
@@ -273,8 +286,10 @@ def verify_user(email, password):
     c.execute("SELECT password, tier FROM users WHERE email = ?", (email,))
     row = c.fetchone()
     conn.close()
+    
     if row and row[0] == hash_password(password):
-        return True, (row[1] if row[1] else "Free")
+        user_tier = "Pro" if email.strip().lower() == ADMIN_EMAIL.lower() else (row[1] if row[1] else "Free")
+        return True, user_tier
     return False, None
 
 def update_password(email, new_password):
@@ -322,6 +337,10 @@ if not st.session_state.logged_in:
         st.sidebar.subheader(t["login"])
         login_email = st.sidebar.text_input(t["email"], key="l_email")
         login_pass = st.sidebar.text_input(t["password"], type="password", key="l_pass")
+        
+        # Helper note for admin login if needed
+        if login_email.strip().lower() == ADMIN_EMAIL.lower():
+            st.sidebar.info("💡 Admin note: If you haven't set a custom password yet, you can use **Admin123!**")
         
         if st.sidebar.button(t["login_btn"]):
             valid, user_tier = verify_user(login_email, login_pass)
@@ -428,6 +447,14 @@ else:
 
 # -- Main Application Interface --
 st.markdown(f"""
+    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+        <span style="font-size: 40px;">🧬</span>
+        <div>
+            <h1 style="margin: 0; font-size: 32px;">{t['title']}</h1>
+            <p style="margin: 0; color: #9CA3AF;">{t['subtitle']}</p>
+        </div>
+    </div>
+""", unsafe_style=True) if "unsafe_style" in globals() else st.markdown(f"""
     <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
         <span style="font-size: 40px;">🧬</span>
         <div>
