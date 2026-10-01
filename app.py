@@ -3,6 +3,7 @@ import pandas as pd
 import py3Dmol
 import os
 import datetime
+import time
 import requests
 import sqlite3
 import hashlib
@@ -246,7 +247,6 @@ def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
 def validate_password_strength(password):
-    # Minimum 8 characters, at least one uppercase, one lowercase, one number, and one special character
     if len(password) < 8:
         return False
     if not re.search(r"[A-Z]", password):
