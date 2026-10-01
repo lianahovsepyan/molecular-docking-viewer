@@ -7,14 +7,9 @@ import requests
 import sqlite3
 import hashlib
 import time
-import stripe
 import streamlit.components.v1 as components
 
 st.set_page_config(page_title="HelixDock SaaS - Molecular Docking", layout="wide", page_icon="🧬")
-
-# -- Initialize Stripe API Key if available in secrets --
-if "stripe" in st.secrets:
-    stripe.api_key = st.secrets["stripe"]["secret_key"]
 
 # -- Custom CSS for Pro SaaS Styling --
 st.markdown("""
@@ -72,10 +67,8 @@ TRANSLATIONS = {
         "logout": "Դուրս գալ (Log out)",
         "plan_free": "Անվճար",
         "plan_pro": "Պրոֆեսիոնալ",
-        "upgrade_title": "💎 Բարելավել մինչև Pro ($29/ամիս)",
-        "stripe_desc": "Վճարումն իրականացվում է <b>Stripe</b>-ի պաշտոնական ապահով հարթակով։",
-        "pay_stripe_btn": "🔒 Վճարել Stripe-ով ($29)",
-        "pay_success": "Վճարումը հաջողությամբ հաստատվեց։ Pro պլանն ակտիվ է։",
+        "upgrade_title": "💎 Բարելավել մինչև Pro ($29)",
+        "pay_success": "Pro պլանն ակտիվացվեց։",
         "login_error": "Սխալ էլ. հասցե կամ գաղտնաբառ:",
         "reg_success": "Գրանցումն հաջողվեց! Այժմ կարող եք մուտք գործել:",
         "reg_error": "Այս էլ. հասցեն արդեն գրանցված է:",
@@ -111,10 +104,8 @@ TRANSLATIONS = {
         "logout": "Log Out",
         "plan_free": "Free",
         "plan_pro": "Pro",
-        "upgrade_title": "💎 Upgrade to Pro ($29/mo)",
-        "stripe_desc": "Payments are securely processed via official <b>Stripe</b> Checkout.",
-        "pay_stripe_btn": "🔒 Pay with Stripe ($29)",
-        "pay_success": "Payment successfully confirmed! Pro plan is active.",
+        "upgrade_title": "💎 Upgrade to Pro ($29)",
+        "pay_success": "Pro plan activated.",
         "login_error": "Invalid email or password.",
         "reg_success": "Registration successful! You can now log in.",
         "reg_error": "This email is already registered.",
@@ -150,10 +141,8 @@ TRANSLATIONS = {
         "logout": "Выйти (Log out)",
         "plan_free": "Бесплатный",
         "plan_pro": "Профессиональный",
-        "upgrade_title": "💎 Перейти на Pro ($29/мес)",
-        "stripe_desc": "Оплата через официальную защищенную систему <b>Stripe</b>.",
-        "pay_stripe_btn": "🔒 Оплатить через Stripe ($29)",
-        "pay_success": "Платеж успешно подтвержден! Pro план активен.",
+        "upgrade_title": "💎 Перейти на Pro ($29)",
+        "pay_success": "Pro план активирован.",
         "login_error": "Неверный email или пароль.",
         "reg_success": "Регистрация успешна! Теперь вы можете войти.",
         "reg_error": "Этот email уже зарегистрирован.",
@@ -178,9 +167,9 @@ TRANSLATIONS = {
     }
 }
 
-# -- Update requirements.txt to include stripe --
+# -- Update requirements.txt --
 with open("requirements.txt", "w") as f:
-    f.write("streamlit\npandas\npy3Dmol\nrequests\nstripe\n")
+    f.write("streamlit\npandas\py3Dmol\nrequests\n")
 
 # -- Database Setup --
 def init_db():
@@ -299,44 +288,28 @@ else:
         st.sidebar.subheader(t["upgrade_title"])
         
         st.sidebar.markdown(f'''
-            <div class="payment-box">
-                <p style="font-size: 13px; color: #94A3B8; margin-bottom: 5px;">
-                    {t["stripe_desc"]}
+            <div class="payment-box" style="text-align: left; font-size: 13px;">
+                <p style="color: #94A3B8; margin-bottom: 6px;">
+                    <b>USDT (TRC20) Վճարում:</b>
+                </p>
+                <p style="color: #CBD5E1; margin-bottom: 5px;">
+                    Ուղարկեք <b>$29 (USDT)</b> այս հասցեին՝
+                </p>
+                <div style="background: #0f172a; padding: 6px; border-radius: 6px; word-break: break-all; font-family: monospace; color: #38BDF8; font-size: 11px; margin-bottom: 6px;">
+                    TKRGWRC2PWKxAgsmxHdaH3wfDvJs1uXNEE
+                </div>
+                <p style="color: #94A3B8; font-size: 10px; margin-bottom: 0;">
+                    Փոխանցելուց հետո գրեք ձեր <b>Email-ը</b> մեզ, և մենք ձեռքով կակտիվացնենք Pro պլանը։
                 </p>
             </div>
         ''', unsafe_allow_html=True)
         
-        if st.sidebar.button(t["pay_stripe_btn"]):
-            try:
-                # If Stripe API key is configured, create real Stripe Checkout Session
-                if "stripe" in st.secrets and st.secrets["stripe"]["secret_key"]:
-                    checkout_session = stripe.checkout.Session.create(
-                        payment_method_types=['card'],
-                        line_items=[{
-                            'price_data': {
-                                'currency': 'usd',
-                                'product_data': {'name': 'HelixDock Pro Plan'},
-                                'unit_amount': 2900,
-                            },
-                            'quantity': 1,
-                        }],
-                        mode='payment',
-                        success_url='https://share.streamlit.io/', # or your app url
-                        cancel_url='https://share.streamlit.io/',
-                        customer_email=st.session_state.email,
-                    )
-                    st.sidebar.markdown(f'<meta http-equiv="refresh" content="0;url={checkout_session.url}">', unsafe_allow_html=True)
-                    st.sidebar.markdown(f"[🔗 Open Stripe Checkout]({checkout_session.url})" )
-                else:
-                    # Fallback simulation if stripe key isn't added yet
-                    with st.spinner("Connecting to Stripe Checkout..."):
-                        time.sleep(1.5)
-                        update_user_tier(st.session_state.email, "Pro")
-                        st.session_state.tier = "Pro"
-                    st.success(t["pay_success"])
-                    st.rerun()
-            except Exception as e:
-                st.sidebar.error(f"Stripe Error: {e}")
+        # Test activation button for convenience
+        if st.sidebar.button("⚡ Ակտիվացնել Pro (Test Mode)"):
+            update_user_tier(st.session_state.email, "Pro")
+            st.session_state.tier = "Pro"
+            st.success(t["pay_success"])
+            st.rerun()
 
 # -- Main Application Interface --
 st.markdown(f"""
