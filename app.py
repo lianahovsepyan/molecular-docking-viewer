@@ -60,18 +60,25 @@ TRANSLATIONS = {
         "account": "Օգտատիրոջ հաշիվ",
         "login": "Մուտք",
         "signup": "Գրանցվել",
+        "forgot": "Մոռացել եմ գաղտնաբառը",
         "email": "Էլ. հասցե (Email)",
         "password": "Գաղտնաբառ",
+        "password_confirm": "Կրկնեք գաղտնաբառը",
+        "new_password": "Նոր գաղտնաբառ",
         "login_btn": "Մուտք գործել",
         "reg_btn": "Գրանցվել",
+        "reset_btn": "Փոխել գաղտնաբառը",
         "logout": "Դուրս գալ (Log out)",
         "plan_free": "Անվճար",
         "plan_pro": "Պրոֆեսիոնալ",
         "upgrade_title": "💎 Բարելավել մինչև Pro ($29)",
         "login_error": "Սխալ էլ. հասցե կամ գաղտնաբառ:",
         "reg_success": "Գրանցումն հաջողվեց! Այժմ կարող եք մուտք գործել:",
-        "reg_error": "Այս էլ. հասցեն արդեն գրանցված է:",
+        "reg_error": "Այս էլ. հասցեն արդեն գրանցված է կամ գաղտնաբառերը չեն համընկնում:",
+        "pass_mismatch": "Գաղտնաբառերը չեն համընկնում:",
         "fill_all": "Լրացրեք բոլոր դաշտերը:",
+        "user_not_found": "Այս էլ. հասցեով օգտատեր չի գտնվել:",
+        "reset_success": "Գաղտնաբառը հաջողությամբ թարմացվեց!",
         "lock_msg": "🔒 Խնդրում ենք մուտք գործել կամ գրանցվել կողային վահանակից՝ հարթակից օգտվելու համար։",
         "free_lock": "🔒 Անվճար պլան․ Իրական շտեմարանից ներբեռնումները և ավտոմատացված դոկինգը հասանելի են միայն Pro տարբերակում։ Խնդրում ենք բարելավել պլանը ձախ վահանակից։",
         "pro_active": "⚡ Pro ռեժիմը լիարժեք ակտիվ է։",
@@ -96,18 +103,25 @@ TRANSLATIONS = {
         "account": "User Account",
         "login": "Login",
         "signup": "Sign Up",
+        "forgot": "Forgot Password",
         "email": "Email Address",
         "password": "Password",
+        "password_confirm": "Confirm Password",
+        "new_password": "New Password",
         "login_btn": "Log In",
         "reg_btn": "Register",
+        "reset_btn": "Reset Password",
         "logout": "Log Out",
         "plan_free": "Free",
         "plan_pro": "Pro",
         "upgrade_title": "💎 Upgrade to Pro ($29)",
         "login_error": "Invalid email or password.",
         "reg_success": "Registration successful! You can now log in.",
-        "reg_error": "This email is already registered.",
+        "reg_error": "Email already registered or passwords do not match.",
+        "pass_mismatch": "Passwords do not match.",
         "fill_all": "Please fill in all fields.",
+        "user_not_found": "User with this email not found.",
+        "reset_success": "Password successfully updated!",
         "lock_msg": "🔒 Please log in or sign up from the sidebar to use the platform.",
         "free_lock": "🔒 Free Tier: Downloading real proteins and automated docking are available in Pro version only. Please upgrade from the left panel.",
         "pro_active": "⚡ Pro mode is fully active.",
@@ -132,18 +146,25 @@ TRANSLATIONS = {
         "account": "Аккаунт пользователя",
         "login": "Вход",
         "signup": "Регистрация",
+        "forgot": "Забыли пароль",
         "email": "Эл. почта",
         "password": "Пароль",
+        "password_confirm": "Подтвердите пароль",
+        "new_password": "Новый пароль",
         "login_btn": "Войти",
         "reg_btn": "Зарегистрироваться",
+        "reset_btn": "Сбросить пароль",
         "logout": "Выйти (Log out)",
         "plan_free": "Бесплатный",
         "plan_pro": "Профессиональный",
         "upgrade_title": "💎 Перейти на Pro ($29)",
         "login_error": "Неверный email или пароль.",
         "reg_success": "Регистрация успешна! Теперь вы можете войти.",
-        "reg_error": "Этот email уже зарегистрирован.",
+        "reg_error": "Email уже зарегистрирован или пароли не совпадают.",
+        "pass_mismatch": "Пароли не совпадают.",
         "fill_all": "Заполните все поля.",
+        "user_not_found": "Пользователь с таким email не найден.",
+        "reset_success": "Пароль успешно обновлен!",
         "lock_msg": "🔒 Пожалуйста, войдите или зарегистрируйтесь в боковой панели для использования платформы.",
         "free_lock": "🔒 Бесплатный тариф: Загрузка реальных белков и автоматический докинг доступны только в версии Pro. Пожалуйста, улучшите тариф слева.",
         "pro_active": "⚡ Режим Pro полностью активен.",
@@ -210,12 +231,18 @@ def verify_user(email, password):
         return True, row[1]
     return False, None
 
-def update_user_tier(email, new_tier):
+def update_password(email, new_password):
     conn = sqlite3.connect("users.db")
     c = conn.cursor()
-    c.execute("UPDATE users SET tier = ? WHERE email = ?", (new_tier, email))
+    c.execute("SELECT email FROM users WHERE email = ?", (email,))
+    row = c.fetchone()
+    if not row:
+        conn.close()
+        return False
+    c.execute("UPDATE users SET password = ? WHERE email = ?", (hash_password(new_password), email))
     conn.commit()
     conn.close()
+    return True
 
 # -- Session State Setup --
 if "logged_in" not in st.session_state:
@@ -240,13 +267,13 @@ st.sidebar.markdown("""
 """, unsafe_allow_html=True)
 st.sidebar.markdown("---")
 
-auth_mode = st.sidebar.radio(f"{t['account']}՝", [t["login"], t["signup"]])
+auth_mode = st.sidebar.radio(f"{t['account']}՝", [t["login"], t["signup"], t["forgot"]])
 
 if not st.session_state.logged_in:
     if auth_mode == t["login"]:
         st.sidebar.subheader(t["login"])
-        login_email = st.sidebar.text_input(t["email"])
-        login_pass = st.sidebar.text_input(t["password"], type="password")
+        login_email = st.sidebar.text_input(t["email"], key="l_email")
+        login_pass = st.sidebar.text_input(t["password"], type="password", key="l_pass")
         
         if st.sidebar.button(t["login_btn"]):
             valid, user_tier = verify_user(login_email, login_pass)
@@ -257,17 +284,40 @@ if not st.session_state.logged_in:
                 st.rerun()
             else:
                 st.sidebar.error(t["login_error"])
-    else:
+                
+    elif auth_mode == t["signup"]:
         st.sidebar.subheader(t["signup"])
-        reg_email = st.sidebar.text_input(t["email"])
-        reg_pass = st.sidebar.text_input(t["password"], type="password")
+        reg_email = st.sidebar.text_input(t["email"], key="r_email")
+        reg_pass = st.sidebar.text_input(t["password"], type="password", key="r_pass")
+        reg_pass_conf = st.sidebar.text_input(t["password_confirm"], type="password", key="r_pass_conf")
         
         if st.sidebar.button(t["reg_btn"]):
-            if reg_email and reg_pass:
-                if register_user(reg_email, reg_pass):
-                    st.sidebar.success(t["reg_success"])
+            if reg_email and reg_pass and reg_pass_conf:
+                if reg_pass == reg_pass_conf:
+                    if register_user(reg_email, reg_pass):
+                        st.sidebar.success(t["reg_success"])
+                    else:
+                        st.sidebar.error(t["reg_error"])
                 else:
-                    st.sidebar.error(t["reg_error"])
+                    st.sidebar.error(t["pass_mismatch"])
+            else:
+                st.sidebar.warning(t["fill_all"])
+                
+    else:  # Forgot Password
+        st.sidebar.subheader(t["forgot"])
+        f_email = st.sidebar.text_input(t["email"], key="f_email")
+        f_pass = st.sidebar.text_input(t["new_password"], type="password", key="f_pass")
+        f_pass_conf = st.sidebar.text_input(t["password_confirm"], type="password", key="f_pass_conf")
+        
+        if st.sidebar.button(t["reset_btn"]):
+            if f_email and f_pass and f_pass_conf:
+                if f_pass == f_pass_conf:
+                    if update_password(f_email, f_pass):
+                        st.sidebar.success(t["reset_success"])
+                    else:
+                        st.sidebar.error(t["user_not_found"])
+                else:
+                    st.sidebar.error(t["pass_mismatch"])
             else:
                 st.sidebar.warning(t["fill_all"])
 else:
